@@ -25,7 +25,7 @@ abstract class BaseException extends ExceptionHandler
             'data' => null,
             'errorMessage' => $message,
             'errorCode' => $code,
-        ], JSON_UNESCAPED_UNICODE);
+        ]);
         return $response
             ->withAddedHeader('Content-Type', ' application/json; charset=UTF-8')
             ->withStatus($code)
