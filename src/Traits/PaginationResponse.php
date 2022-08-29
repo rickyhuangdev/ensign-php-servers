@@ -2,19 +2,37 @@
 
 namespace Rickytech\Library\Traits;
 
+use Hyperf\Database\Model\Collection;
+use Hyperf\Paginator\LengthAwarePaginator;
+
 trait PaginationResponse
 {
-    public function toTreeList(array $source, string $primaryKey = 'id', string $parentKey = 'pid', string $childrenKey = 'children'): array
+    public function paginateResponse($paginate):array
     {
-        $tree = [];
-        $newData = array_column($source, null, $primaryKey);
-        foreach ($newData as $key => &$value) {
-            if ($value[$parentKey] > 0) {
-                $newData[$value[$parentKey]][$childrenKey][] = &$value;
-            } else {
-                $tree[] = &$newData[$value[$primaryKey]];
-            }
+        if ($paginate instanceof LengthAwarePaginator) {
+            return [
+                'success' => true,
+                'total' => $paginate->total(),
+                'current' => $paginate->currentPage(),
+                'pageSize' => $paginate->perPage(),
+                'totalPage' => $paginate->lastPage(),
+                'data' => $paginate->getCollection(),
+            ];
         }
-        return $tree;
+        if ($paginate instanceof Collection) {
+            $page = $paginate->toArray();
+        }
+        if (! is_array($paginate)) {
+            return $paginate;
+        }
+        $total = count($paginate);
+        return [
+            'success' => true,
+            'total' => $total,
+            'page' => 1,
+            'limit' => $total,
+            'pages' => 1,
+            'data' => $page,
+        ];
     }
 }
