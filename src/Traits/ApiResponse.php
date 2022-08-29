@@ -2,9 +2,10 @@
 
 namespace Rickytech\Library\Traits;
 
+use Hyperf\Database\Model\Model;
 use Rickytech\Library\Exceptions\ApiResponseException;
 use Symfony\Component\HttpFoundation\Response as FoundationResponse;
-use Hyperf\Database\Model\Model;
+
 trait ApiResponse
 {
     protected $statusCode = FoundationResponse::HTTP_OK;
@@ -32,7 +33,7 @@ trait ApiResponse
      * @param string|null $message
      * @return array
      */
-    public function success(array|null|Model $data, ?string $message): array
+    public function success(array|null|Model $data, string|null $message = ''): array
     {
         return $this->result(true, $data, $message, $this->statusCode);
     }
@@ -40,7 +41,7 @@ trait ApiResponse
     /**
      * @param string $message
      * @param int $code
-     * @return mixed
+     * @return never
      * @throws ApiResponseException
      */
     public function error(string $message, int $code): never
@@ -58,12 +59,12 @@ trait ApiResponse
     private function result(bool $success, array|string|null $data, string|null $message, int $code = 200): array
     {
         return [
-            'success' => $success,
-            'code' => $code,
-            'message' => $message,
-            'data' => $data,
+            'success'      => $success,
+            'code'         => $code,
+            'message'      => $message,
+            'data'         => $data,
             'errorMessage' => !$success ? $message : null,
-            'errorCode' => !$success ? $code : null,
+            'errorCode'    => !$success ? $code : null,
         ];
     }
 }
