@@ -40,11 +40,11 @@ trait ApiResponse
 
     /**
      * @param string $message
-     * @param int $code
+     * @param ?int $code
      * @return never
      * @throws ApiResponseException
      */
-    public function error(string $message, int $code): never
+    public function error(string $message, ?int $code = 400): never
     {
         throw new ApiResponseException($message, $code);
     }
