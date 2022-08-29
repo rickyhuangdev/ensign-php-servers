@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response as FoundationResponse;
 
 trait ApiResponse
 {
-    protected $statusCode = FoundationResponse::HTTP_OK;
+    protected int $statusCode = FoundationResponse::HTTP_OK;
 
     /**
      * @return int
@@ -51,18 +51,19 @@ trait ApiResponse
 
     /**
      * @param bool $success
-     * @param array|string|null $data
+     * @param array|null|Model $data
      * @param string|null $message
      * @param int $code
      * @return array
      */
-    private function result(bool $success, array|string|null $data, string|null $message, int $code = 200): array
+    private function result(bool $success, array|null|Model $data, string|null $message, int $code = 200): array
     {
+
         return [
             'success'      => $success,
             'code'         => $code,
             'message'      => $message,
-            'data'         => $data,
+            'data'         => $data instanceof Model?$data->toArray():$data,
             'errorMessage' => !$success ? $message : null,
             'errorCode'    => !$success ? $code : null,
         ];
