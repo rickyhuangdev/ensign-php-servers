@@ -2,7 +2,7 @@
 
 namespace Rickytech\Library\Traits;
 
-class TreeList
+trait TreeList
 {
     public function toTreeList(array $source, string $primaryKey = 'id', string $parentKey = 'pid', string $childrenKey = 'children'): array
     {
