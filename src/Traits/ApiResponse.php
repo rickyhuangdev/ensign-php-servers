@@ -29,10 +29,10 @@ trait ApiResponse
 
     /**
      * @param array|null|Model $data
-     * @param string $message
+     * @param string|null $message
      * @return array
      */
-    public function success(array|null|Model $data, string $message): array
+    public function success(array|null|Model $data, ?string $message): array
     {
         return $this->result(true, $data, $message, $this->statusCode);
     }
