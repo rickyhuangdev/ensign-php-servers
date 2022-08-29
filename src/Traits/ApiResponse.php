@@ -4,7 +4,7 @@ namespace Rickytech\Library\Traits;
 
 use Rickytech\Library\Exceptions\ApiResponseException;
 use Symfony\Component\HttpFoundation\Response as FoundationResponse;
-
+use Hyperf\Database\Model\Model;
 trait ApiResponse
 {
     protected $statusCode = FoundationResponse::HTTP_OK;
@@ -28,11 +28,11 @@ trait ApiResponse
     }
 
     /**
-     * @param array|null $data
+     * @param array|null|Model $data
      * @param string $message
      * @return array
      */
-    public function success(array|null $data, string $message): array
+    public function success(array|null|Model $data, string $message): array
     {
         return $this->result(true, $data, $message, $this->statusCode);
     }
