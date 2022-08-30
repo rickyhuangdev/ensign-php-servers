@@ -46,4 +46,3 @@ class DataTransferObject
         return $array;
     }
 }
-}
