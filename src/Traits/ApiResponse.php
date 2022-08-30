@@ -58,7 +58,6 @@ trait ApiResponse
      */
     private function result(bool $success, array|null|Model $data, string|null $message, int $code = 200): array
     {
-
         return [
             'success'      => $success,
             'code'         => $code,
