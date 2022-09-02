@@ -14,7 +14,8 @@
     "autoload-dev": {
         "psr-4": {
             "Rickytech\\Library\\Tests\\": "tests"
-        }
+        },
+        "files": ["src/helpers.php"]
     },
     "authors": [
         {
