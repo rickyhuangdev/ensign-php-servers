@@ -1,9 +1,11 @@
 <?php
+namespace Rickytech\Library\Traits;
 
 use Hyperf\Utils\Str;
 
-if (!function_exists('createCodeForGivenName')) {
-    function createCodeForGivenName(?string $name='', ?array &$data=[], ?int $length = 16): array|string
+trait Helpers
+{
+    public function createCodeForGivenName(?string $name='', ?array &$data=[], ?int $length = 16): array|string
     {
         if (!$name || !$data) {
             return Str::random($length);
