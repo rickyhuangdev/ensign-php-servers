@@ -2,6 +2,7 @@
 
 namespace Rickytech\Library\Traits;
 
+use Hyperf\Database\Model\Collection;
 use Hyperf\Database\Model\Model;
 use Rickytech\Library\Exceptions\ApiResponseException;
 use Symfony\Component\HttpFoundation\Response as FoundationResponse;
@@ -29,11 +30,11 @@ trait ApiResponse
     }
 
     /**
-     * @param array|null|Model $data
+     * @param array|Model|Collection|null $data
      * @param string|null $message
      * @return array
      */
-    public function success(array|null|Model $data, string|null $message = ''): array
+    public function success(array|null|Model|Collection $data, string|null $message = ''): array
     {
         return $this->result(true, $data, $message, $this->statusCode);
     }
@@ -51,18 +52,21 @@ trait ApiResponse
 
     /**
      * @param bool $success
-     * @param array|null|Model $data
+     * @param array|Model|Collection|null $data
      * @param string|null $message
      * @param int $code
      * @return array
      */
-    private function result(bool $success, array|null|Model $data, string|null $message, int $code = 200): array
+    private function result(bool $success, array|null|Model|Collection $data, string|null $message, int $code = 200): array
     {
+        if ($data instanceof Collection || $data instanceof Model) {
+            $data = $data->toArray();
+        }
         return [
             'success'      => $success,
             'code'         => $code,
             'message'      => $message,
-            'data'         => $data instanceof Model?$data->toArray():$data,
+            'data'         => $data,
             'errorMessage' => !$success ? $message : null,
             'errorCode'    => !$success ? $code : null,
         ];
