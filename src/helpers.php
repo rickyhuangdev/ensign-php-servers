@@ -2,7 +2,7 @@
 
 use Hyperf\Utils\Str;
 
-if (!function_exists('generateRandomCode')) {
+if (!function_exists('createCodeForGivenName')) {
     function createCodeForGivenName(?string $name='', ?array &$data=[], ?int $length = 16): array|string
     {
         if (!$name || !$data) {
