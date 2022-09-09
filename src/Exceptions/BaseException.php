@@ -2,6 +2,7 @@
 
 namespace Rickytech\Library\Exceptions;
 
+use Hyperf\Database\Model\ModelNotFoundException;
 use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\HttpMessage\Stream\SwooleStream;
 use Hyperf\Validation\ValidationException;
@@ -16,6 +17,9 @@ abstract class BaseException extends ExceptionHandler
 
         if ($throwable instanceof ValidationException) {
             $message = $throwable->validator->errors()->first();
+        }
+        if ($throwable instanceof ModelNotFoundException) {
+            $message = 'The requested resource was not found on this server';
         }
         $this->stopPropagation();
         $data = json_encode([

@@ -5,6 +5,8 @@ namespace Rickytech\Library\Exceptions;
 use Hyperf\Database\Model\ModelNotFoundException;
 use Hyperf\HttpMessage\Stream\SwooleStream;
 use Psr\Http\Message\ResponseInterface;
+use Hyperf\Utils\ApplicationContext;
+use Hyperf\ExceptionHandler\ExceptionHandler;
 use Throwable;
 
 class JsonResponseException extends BaseException
