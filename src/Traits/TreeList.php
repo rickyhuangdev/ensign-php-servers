@@ -10,7 +10,7 @@ trait TreeList
     public function toTreeList(array|Collection|LengthAwarePaginator $source, string $primaryKey = 'id', string $parentKey = 'pid', string $childrenKey = 'children'): array
     {
         if ($source instanceof LengthAwarePaginator) {
-            $source = $source->getCollection();
+            $source = $source->getCollection()->toArray();
         } elseif ($source instanceof Collection) {
             $source = $source->toArray();
         }
