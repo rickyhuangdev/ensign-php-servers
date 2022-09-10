@@ -1,18 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Rickytech\Library\Exceptions;
 
-
 use Hyperf\Contract\ConfigInterface;
-use Hyperf\Database\Model\ModelNotFoundException;
+use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\HttpMessage\Stream\SwooleStream;
 use Hyperf\Utils\ApplicationContext;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
 
-class JsonResponseException
+class JsonResponseException extends ExceptionHandler
 {
-    public function handle(Throwable $throwable, ResponseInterface $response): ResponseInterface
+    public function handle(Throwable $throwable, ResponseInterface $response)
     {
         $responseContents = $response->getBody()->getContents();
         $responseContents = json_decode($responseContents, true);
