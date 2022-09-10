@@ -2,16 +2,17 @@
 
 namespace Rickytech\Library\Exceptions;
 
+
+use Hyperf\Contract\ConfigInterface;
 use Hyperf\Database\Model\ModelNotFoundException;
 use Hyperf\HttpMessage\Stream\SwooleStream;
-use Psr\Http\Message\ResponseInterface;
 use Hyperf\Utils\ApplicationContext;
-use Hyperf\ExceptionHandler\ExceptionHandler;
+use Psr\Http\Message\ResponseInterface;
 use Throwable;
 
-class JsonResponseException extends BaseException
+class JsonResponseException
 {
-    public function handle(Throwable $throwable, ResponseInterface $response)
+    public function handle(Throwable $throwable, ResponseInterface $response): ResponseInterface
     {
         $responseContents = $response->getBody()->getContents();
         $responseContents = json_decode($responseContents, true);
@@ -25,7 +26,8 @@ class JsonResponseException extends BaseException
                     break;
                 }
             }
-            $responseContents['error']['message'] .= " - {$this->appName}:{$port}";
+//            $responseContents['error']['message'] .= " - {$config->get('app_name')}:{$port}";
+
         }
         $data = json_encode($responseContents, JSON_UNESCAPED_UNICODE);
         return $response->withStatus(200)->withBody(new SwooleStream($data));
