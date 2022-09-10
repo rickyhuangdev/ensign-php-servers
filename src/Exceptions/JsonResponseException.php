@@ -26,8 +26,10 @@ class JsonResponseException
                     break;
                 }
             }
+            if ($throwable->getCode()) {
+                $responseContents['error']['code'] = $throwable->getCode();
+            }
 //            $responseContents['error']['message'] .= " - {$config->get('app_name')}:{$port}";
-
         }
         $data = json_encode($responseContents, JSON_UNESCAPED_UNICODE);
         return $response->withStatus(200)->withBody(new SwooleStream($data));
