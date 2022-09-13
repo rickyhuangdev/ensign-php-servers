@@ -4,7 +4,6 @@ namespace Rickytech\Library\Repositories;
 
 use Hyperf\Database\Model\ModelNotFoundException;
 use Swoole\Database\MysqliException;
-use Rickytech\Library\Exceptions\ModelNotDefined;
 
 abstract class BaseRepository
 {
@@ -18,7 +17,7 @@ abstract class BaseRepository
     protected function getModelClass()
     {
         if (!method_exists($this, 'model')) {
-            throw ModelNotDefined::named('model not defined');
+            throw new \RuntimeException('model not defined');
         }
         return new ($this->model());
     }
