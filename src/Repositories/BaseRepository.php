@@ -17,7 +17,7 @@ abstract class BaseRepository
     protected function getModelClass()
     {
         if (!method_exists($this, 'model')) {
-            throw new \ModelNotDefined::named('model not defined');
+            throw ModelNotDefined::named('model not defined');
         }
         return new ($this->model());
     }
