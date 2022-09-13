@@ -10,6 +10,7 @@ use Hyperf\HttpMessage\Stream\SwooleStream;
 use Hyperf\Utils\ApplicationContext;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
+use Rickytech\Library\Exceptions\ModelNotDefined;
 
 class JsonResponseException extends ExceptionHandler
 {
