@@ -18,7 +18,7 @@ trait TreeList
         foreach ($source as $k => $v) {
             if ($v[$parentKey] == $id) {
                 $v['level'] = $level;
-                $v[$childrenKey] = $this->toTreeList($source, $v['id'], $level + 1);
+                $v[$childrenKey] = $this->toTreeList($source, $v[$primaryKey], $level + 1);
                 $list[] = $v;
             }
         }
