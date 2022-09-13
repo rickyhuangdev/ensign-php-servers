@@ -7,22 +7,21 @@ use Hyperf\Utils\Collection;
 
 trait TreeList
 {
-    public function toTreeList(array|Collection|LengthAwarePaginator $source, string $primaryKey = 'id', string $parentKey = 'pid', string $childrenKey = 'children'): array
+    public function toTreeList(array|Collection|LengthAwarePaginator $source, $id = 0, $level = 0, string $primaryKey = 'id', string $parentKey = 'pid', string $childrenKey = 'children'): array
     {
         if ($source instanceof LengthAwarePaginator) {
             $source = $source->getCollection()->toArray();
         } elseif ($source instanceof Collection) {
             $source = $source->toArray();
         }
-        $tree = [];
-        $newData = array_column($source, null, $primaryKey);
-        foreach ($newData as $key => &$value) {
-            if ($value[$parentKey] > 0) {
-                $newData[$value[$parentKey]][$childrenKey][] = &$value;
-            } else {
-                $tree[] = &$newData[$value[$primaryKey]];
+        $list = array();
+        foreach ($source as $k => $v) {
+            if ($v[$parentKey] == $id) {
+                $v['level'] = $level;
+                $v[$childrenKey] = $this->toTreeList($source, $v['id'], $level + 1);
+                $list[] = $v;
             }
         }
-        return $tree;
+        return $list;
     }
 }
