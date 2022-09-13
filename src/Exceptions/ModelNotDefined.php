@@ -2,7 +2,7 @@
 
 namespace Rickytech\Library\Exceptions;
 
-class ModelNotDefined extends \InvalidArgumentException
+class ModelNotDefined extends \RuntimeException
 {
     public static function named(string $className)
     {

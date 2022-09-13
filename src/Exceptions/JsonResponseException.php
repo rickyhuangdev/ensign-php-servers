@@ -10,7 +10,6 @@ use Hyperf\HttpMessage\Stream\SwooleStream;
 use Hyperf\Utils\ApplicationContext;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
-use Rickytech\Library\Exceptions\ModelNotDefined;
 
 class JsonResponseException extends ExceptionHandler
 {
@@ -18,19 +17,6 @@ class JsonResponseException extends ExceptionHandler
     {
         $responseContents = $response->getBody()->getContents();
         $responseContents = json_decode($responseContents, true);
-        if ($throwable instanceof ModelNotDefined) {
-            return $response->withStatus(200)->
-            withBody(new SwooleStream(json_encode(
-                [
-                    'success' => false,
-                    'code' => 400,
-                    'message' => $throwable->getMessage(),
-                    'data' => null,
-                    'errorMessage' => $throwable->getMessage(),
-                    'errorCode' => 400,
-                ]
-            )));
-        }
         if (!empty($responseContents['error'])) {
             $port = null;
             $config = ApplicationContext::getContainer()->get(ConfigInterface::class);
