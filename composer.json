@@ -16,7 +16,7 @@
             "Rickytech\\Library\\Tests\\": "tests"
         },
         "files": [
-            "src/Traits/Helpers.php"
+            "src/helpers.php"
         ]
     },
     "authors": [
