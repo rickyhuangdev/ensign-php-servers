@@ -1,11 +1,13 @@
 <?php
-
+declare(strict_types=1);
 namespace Rickytech\Library\Exceptions;
+
+use Throwable;
 
 class ModelNotDefined extends \RuntimeException
 {
-    public static function named(string $className)
+    public function __construct(string $message = "", int $code = 0, ?Throwable $previous = null)
     {
-        return new static("There is no model defined --- `{$className}`.",400);
+        parent::__construct($message, $code, $previous);
     }
 }

@@ -1,11 +1,12 @@
 <?php
-
+declare(strict_types=1);
 namespace Rickytech\Library\Repositories\Eloquent;
 
 use Hyperf\Database\Model\ModelNotFoundException;
 use Hyperf\Utils\Arr;
 use Swoole\Database\MysqliException;
 use Rickytech\Library\Exceptions\ModelNotDefined;
+
 abstract class BaseRepository
 {
     protected $model;
@@ -18,7 +19,7 @@ abstract class BaseRepository
     protected function getModelClass()
     {
         if (!method_exists($this, 'model')) {
-            throw ModelNotDefined::named('No model defined');
+            throw new ModelNotDefined("Model Not Defined", 500);
         }
         return new ($this->model())();
     }
@@ -62,7 +63,6 @@ abstract class BaseRepository
 
     public function paginate(?array $data = [], int $current = 1, int $pageSize = 15)
     {
-
         return $this->model->paginate(perPage: $data['pageSize'] ?? $pageSize, page: $data['current'] ?? $current);
     }
 

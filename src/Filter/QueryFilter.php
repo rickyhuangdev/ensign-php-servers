@@ -1,5 +1,5 @@
 <?php
-
+declare(strict_types=1);
 namespace Rickytech\Library\Filter;
 
 use Hyperf\Database\Model\Builder;

@@ -16,7 +16,6 @@ class JsonResponseException extends ExceptionHandler
 {
     public function handle(Throwable $throwable, ResponseInterface $response)
     {
-
         if ($throwable instanceof ModelNotDefined) {
             $data = $this->getJsonRpcDataFormat($throwable->getMessage(), $throwable->Code());
             $data = json_encode($data, JSON_UNESCAPED_UNICODE);

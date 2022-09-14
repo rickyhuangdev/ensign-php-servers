@@ -1,5 +1,5 @@
 <?php
-
+declare(strict_types=1);
 namespace Rickytech\Library\Exceptions;
 
 use Hyperf\Database\Model\ModelNotFoundException;

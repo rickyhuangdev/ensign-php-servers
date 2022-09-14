@@ -1,5 +1,5 @@
 <?php
-
+declare(strict_types=1);
 use \Hyperf\Utils\Collection;
 use Hyperf\Paginator\LengthAwarePaginator;
 
@@ -8,7 +8,7 @@ if (!function_exists('convertArrayToTree')) {
     {
         if ($data instanceof Collection) {
             $data = $data->toArray();
-        } else if ($data instanceof LengthAwarePaginator) {
+        } elseif ($data instanceof LengthAwarePaginator) {
             $data = $data->getCollection()->toArray();
         }
 
