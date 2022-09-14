@@ -5,11 +5,13 @@ namespace Rickytech\Library\Repositories\Eloquent;
 use Hyperf\Database\Model\ModelNotFoundException;
 use Hyperf\Utils\Arr;
 use Rickytech\Library\Services\Cache\Instances\PhpRedis;
+use Rickytech\Library\Traits\TreeList;
 use Swoole\Database\MysqliException;
 use App\Exception\ModelNotDefined;
 
 abstract class BaseRepository
 {
+    use TreeList;
     protected $model;
     protected $cache;
     public function __construct()
