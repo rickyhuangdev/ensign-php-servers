@@ -15,12 +15,12 @@ trait TreeList
             $source = $source->toArray();
         }
         $list = array();
-        if ($labelName) {
+        if ($labelName && $value) {
             foreach ($source as $k => $v) {
                 if ($v[$parentKey] == $id) {
                     $v['level'] = $level;
-                    $v['label'] = $labelName;
-                    $v['value'] = $value;
+                    $v['label'] = $v[$labelName];
+                    $v['value'] = $v[$value];
                     $v[$childrenKey] = $this->toTreeList($source, $v[$primaryKey], $level + 1);
                     $list[] = $v;
                 }
