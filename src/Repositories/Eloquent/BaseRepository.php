@@ -5,7 +5,7 @@ namespace Rickytech\Library\Repositories\Eloquent;
 use Hyperf\Database\Model\ModelNotFoundException;
 use Hyperf\Utils\Arr;
 use Swoole\Database\MysqliException;
-use Rickytech\Library\Exceptions\ModelNotDefined;
+use App\Exception\ModelNotDefined;
 
 abstract class BaseRepository
 {
