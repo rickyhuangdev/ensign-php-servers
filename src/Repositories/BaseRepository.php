@@ -7,11 +7,11 @@ use Swoole\Database\MysqliException;
 use Rickytech\Library\Exceptions\ModelNotDefined;
 abstract class BaseRepository
 {
-    protected $model;
+    protected $modelInstance;
 
     public function __construct()
     {
-        $this->model = $this->getModelClass();
+        $this->modelInstance = $this->getModelClass();
     }
 
     protected function getModelClass()
@@ -24,13 +24,13 @@ abstract class BaseRepository
 
     public function all(?array $data = [])
     {
-        return $this->model->all();
+        return $this->modelInstance->all();
     }
 
     public function findById(string|int $id)
     {
         try {
-            return $this->model->findOrFail($id);
+            return $this->modelInstance->findOrFail($id);
         } catch (ModelNotFoundException $e) {
             throw new \RuntimeException('The requested resource was not found on this server', 404);
         }
@@ -39,7 +39,7 @@ abstract class BaseRepository
     public function create(array $data)
     {
         try {
-            return $this->model->create($data);
+            return $this->modelInstance->create($data);
         } catch (MysqliException $e) {
             throw new \RuntimeException($e->getMessage(), 500);
         }
@@ -62,6 +62,6 @@ abstract class BaseRepository
     public function paginate(?array $data = [], int $current = 1, int $pageSize = 15)
     {
 
-        return $this->model->paginate(perPage: $data['pageSize'] ?? $pageSize, page: $data['current'] ?? $current);
+        return $this->modelInstance->paginate(perPage: $data['pageSize'] ?? $pageSize, page: $data['current'] ?? $current);
     }
 }
