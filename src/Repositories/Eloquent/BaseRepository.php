@@ -15,7 +15,7 @@ abstract class BaseRepository
     public function __construct()
     {
         $this->model = $this->getModelClass();
-//        $this->cache = PhpRedis::getPhpRedis();
+        $this->cache = PhpRedis::getPhpRedis();;
     }
 
     protected function getModelClass()
