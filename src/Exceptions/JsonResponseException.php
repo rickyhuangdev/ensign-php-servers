@@ -10,11 +10,19 @@ use Hyperf\HttpMessage\Stream\SwooleStream;
 use Hyperf\Utils\ApplicationContext;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
+use Rickytech\Library\Exceptions\ModelNotDefined;
 
 class JsonResponseException extends ExceptionHandler
 {
     public function handle(Throwable $throwable, ResponseInterface $response)
     {
+
+        if ($throwable instanceof ModelNotDefined) {
+            $data = $this->getJsonRpcDataFormat($throwable->getMessage(), $throwable->Code());
+            $data = json_encode($data, JSON_UNESCAPED_UNICODE);
+            return $response->withStatus(200)->withBody(new SwooleStream($data));
+        }
+
         $responseContents = $response->getBody()->getContents();
         $responseContents = json_decode($responseContents, true);
         if (!empty($responseContents['error'])) {
@@ -39,5 +47,23 @@ class JsonResponseException extends ExceptionHandler
     public function isValid(Throwable $throwable): bool
     {
         return true;
+    }
+
+    /**
+     * @param string $message
+     * @param int $code
+     * @return array
+     */
+    private function getJsonRpcDataFormat(string $message, int $code = 400): array
+    {
+        return [
+            "jsonrpc" => "2.0",
+            "id" => "1",
+            "error" => [
+                "code" => $code,
+                "message" => $message,
+                "data" => null
+            ]
+        ];
     }
 }
