@@ -7,11 +7,11 @@ use Swoole\Database\MysqliException;
 use Rickytech\Library\Exceptions\ModelNotDefined;
 abstract class BaseRepository
 {
-    protected $modelInstance;
+    protected $model;
 
     public function __construct()
     {
-        $this->modelInstance = $this->getModelClass();
+        $this->model = $this->getModelClass();
     }
 
     protected function getModelClass()
@@ -19,18 +19,18 @@ abstract class BaseRepository
         if (!method_exists($this, 'model')) {
             throw ModelNotDefined::named('No model defined');
         }
-        return new ($this->model());
+        return new ($this->model())();
     }
 
     public function all(?array $data = [])
     {
-        return $this->modelInstance->all();
+        return $this->model->all();
     }
 
     public function findById(string|int $id)
     {
         try {
-            return $this->modelInstance->findOrFail($id);
+            return $this->model->findOrFail($id);
         } catch (ModelNotFoundException $e) {
             throw new \RuntimeException('The requested resource was not found on this server', 404);
         }
@@ -39,7 +39,7 @@ abstract class BaseRepository
     public function create(array $data)
     {
         try {
-            return $this->modelInstance->create($data);
+            return $this->model->create($data);
         } catch (MysqliException $e) {
             throw new \RuntimeException($e->getMessage(), 500);
         }
@@ -62,6 +62,6 @@ abstract class BaseRepository
     public function paginate(?array $data = [], int $current = 1, int $pageSize = 15)
     {
 
-        return $this->modelInstance->paginate(perPage: $data['pageSize'] ?? $pageSize, page: $data['current'] ?? $current);
+        return $this->model->paginate(perPage: $data['pageSize'] ?? $pageSize, page: $data['current'] ?? $current);
     }
 }
