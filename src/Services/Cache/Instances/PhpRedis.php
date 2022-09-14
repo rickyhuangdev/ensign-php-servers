@@ -47,13 +47,13 @@ final class PhpRedis implements Cache
         return self::$phpRedis;
     }
 
-    public static function remember($key, $ttl, \Closure $callback)
+    public function remember($key, $ttl, \Closure $callback)
     {
-        $value = (new self())->get($key);
+        $value = $this->get($key);
         if ($value !== false) {
             return $value;
         }
-        (new self())->put($key, $value = $callback(), value($ttl));
+        $this->put($key, $value = $callback(), value($ttl));
         return $value;
     }
 
