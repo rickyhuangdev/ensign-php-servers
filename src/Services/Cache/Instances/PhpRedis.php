@@ -18,7 +18,7 @@ final class PhpRedis implements Cache
      */
     private function __construct()
     {
-//        $this->redisClient = ApplicationContext::getContainer()->get(\Hyperf\Redis\Redis::class);
+        $this->redisClient = ApplicationContext::getContainer()->get(\Hyperf\Redis\Redis::class);
     }
 
     /**
@@ -47,13 +47,13 @@ final class PhpRedis implements Cache
         return self::$phpRedis;
     }
 
-    public function remember($key, $ttl, \Closure $callback)
+    public static function remember($key, $ttl, \Closure $callback)
     {
-        $value = $this->get($key);
+        $value = (new self())->get($key);
         if ($value !== false) {
             return $value;
         }
-        $this->put($key, $value = $callback(), value($ttl));
+        (new self())->put($key, $value = $callback(), value($ttl));
         return $value;
     }
 
