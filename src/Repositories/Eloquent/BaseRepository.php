@@ -1,8 +1,9 @@
 <?php
 
-namespace Rickytech\Library\Repositories;
+namespace Rickytech\Library\Repositories\Eloquent;
 
 use Hyperf\Database\Model\ModelNotFoundException;
+use Hyperf\Utils\Arr;
 use Swoole\Database\MysqliException;
 use Rickytech\Library\Exceptions\ModelNotDefined;
 abstract class BaseRepository
@@ -24,7 +25,7 @@ abstract class BaseRepository
 
     public function all(?array $data = [])
     {
-        return $this->model->all();
+        return $this->model->get();
     }
 
     public function findById(string|int $id)
@@ -63,5 +64,14 @@ abstract class BaseRepository
     {
 
         return $this->model->paginate(perPage: $data['pageSize'] ?? $pageSize, page: $data['current'] ?? $current);
+    }
+
+    public function withCriteria(...$criteria): BaseRepository
+    {
+        $criteria = Arr::flatten($criteria);
+        foreach ($criteria as $criterion) {
+            $this->model = $criterion->apply($this->model);
+        }
+        return $this;
     }
 }
