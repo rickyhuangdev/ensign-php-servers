@@ -18,7 +18,7 @@ class JsonResponseException extends ExceptionHandler
     {
         $responseContents = $response->getBody()->getContents();
         $responseContents = json_decode($responseContents, true);
-        var_dump($throwable->getLine(), $throwable->getMessage(), $throwable->getTraceAsString(), $throwable->getCode())
+        var_dump($throwable->getLine(), $throwable->getMessage(), $throwable->getTraceAsString(), $throwable->getCode());
         if (!empty($responseContents['error'])) {
             var_dump($responseContents);
             $port = null;
