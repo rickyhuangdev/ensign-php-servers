@@ -35,12 +35,20 @@ abstract class BaseRepository
 
     public function findById(string|int $id)
     {
+        try {
             return $this->model->findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            throw new \RuntimeException('The requested resource was not found on this server', 404);
+        }
     }
 
     public function create(array $data)
     {
+        try {
             return $this->model->create($data);
+        } catch (MysqliException $e) {
+            throw new \RuntimeException($e->getMessage(), 500);
+        }
     }
 
     public function update(array $data, string|int $id)
