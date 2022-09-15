@@ -16,15 +16,11 @@ class JsonResponseException extends ExceptionHandler
 {
     public function handle(Throwable $throwable, ResponseInterface $response)
     {
-        if ($throwable instanceof ModelNotDefined) {
-            $data = $this->getJsonRpcDataFormat($throwable->getMessage(), $throwable->Code());
-            $data = json_encode($data, JSON_UNESCAPED_UNICODE);
-            return $response->withStatus(200)->withBody(new SwooleStream($data));
-        }
-
         $responseContents = $response->getBody()->getContents();
         $responseContents = json_decode($responseContents, true);
+        var_dump($throwable->getLine(), $throwable->getMessage(), $throwable->getTraceAsString(), $throwable->getCode())
         if (!empty($responseContents['error'])) {
+            var_dump($responseContents);
             $port = null;
             $config = ApplicationContext::getContainer()->get(ConfigInterface::class);
             $servers = $config->get('server.servers');
@@ -34,9 +30,8 @@ class JsonResponseException extends ExceptionHandler
                     break;
                 }
             }
-            if ($throwable->getCode()) {
-                $responseContents['error']['code'] = $throwable->getCode();
-            }
+            $responseContents['error']['errorMessage'] = $responseContents['error']['data']['message'] ?? $throwable->getMessage();
+            $responseContents['error']['code'] = $responseContents['error']['data']['code'];
 //            $responseContents['error']['message'] .= " - {$config->get('app_name')}:{$port}";
         }
         $data = json_encode($responseContents, JSON_UNESCAPED_UNICODE);
