@@ -6,10 +6,22 @@ use Exception;
 use Hyperf\Utils\ApplicationContext;
 use Rickytech\Library\Services\Cache\Contracts\Cache;
 
+/**
+ *
+ */
 final class PhpRedis implements Cache
 {
+    /**
+     * @var PhpRedis|null
+     */
     private static ?PhpRedis $phpRedis = null;
+    /**
+     * @var mixed
+     */
     public mixed $redisClient;
+    /**
+     * @var int
+     */
     protected int $default = 3600;
 
     /**
@@ -47,6 +59,12 @@ final class PhpRedis implements Cache
         return self::$phpRedis;
     }
 
+    /**
+     * @param $key
+     * @param $ttl
+     * @param \Closure $callback
+     * @return mixed
+     */
     public function remember($key, $ttl, \Closure $callback)
     {
         $value = $this->get($key);
@@ -66,6 +84,11 @@ final class PhpRedis implements Cache
         return !is_null($this->redisClient->get($key));
     }
 
+    /**
+     * @param $key
+     * @param $default
+     * @return mixed
+     */
     public function get($key, $default = null)
     {
         return unserialize($this->redisClient->get($key));
@@ -97,5 +120,45 @@ final class PhpRedis implements Cache
     public function put($key, $value, int $ttl = 3600): bool
     {
         return $this->redisClient->set($key, serialize($value), $ttl);
+    }
+
+    /**
+     * @param $key
+     * @param $field
+     * @param $value
+     * @return string
+     */
+    public function setHashData($key, $field, $value)
+    {
+        return serialize($this->redisClient->hSet($key, $field, $value));
+    }
+
+    /**
+     * @param $key
+     * @param $field
+     * @return mixed
+     */
+    public function getHashDataField($key, $field)
+    {
+        return unserialize($this->redisClient->hGet($key, $field));
+    }
+
+    /**
+     * @param $key
+     * @return bool
+     */
+    public function deleteHashDataByKey($key): bool
+    {
+        return $this->delete($key);
+    }
+
+    /**
+     * @param $key
+     * @param $field
+     * @return bool
+     */
+    public function checkHashDataFieldExist($key, $field): bool
+    {
+        return $this->redisClient->hExists($key, $field);
     }
 }
