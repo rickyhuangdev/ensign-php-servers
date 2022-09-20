@@ -149,7 +149,7 @@ final class PhpRedis implements Cache
      */
     public function getHashDataField($key, $field)
     {
-        return unserialize($this->redisClient->hGet($key, $field));
+        return $this->redisClient->hGet($key, $field);
     }
 
     /**
