@@ -27,9 +27,11 @@ abstract class BaseRepository
     protected function getModelClass()
     {
         try {
-            return new ($this->model())();
+            if (method_exists($this, 'model')) {
+                return new ($this->model())();
+            }
         } catch (\Exception $e) {
-            throw new ModelNotDefinedException();
+            throw new \RuntimeException('The requested resource was not found on this server', 404);
         }
 
     }
