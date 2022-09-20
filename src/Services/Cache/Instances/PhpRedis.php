@@ -139,7 +139,7 @@ final class PhpRedis implements Cache
      */
     public function setHashData($key, $field, $value)
     {
-        return serialize($this->redisClient->hSet($key, $field, $value));
+        return $this->redisClient->hSet($key, $field, serialize($value));
     }
 
     /**
