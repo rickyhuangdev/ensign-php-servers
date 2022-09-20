@@ -26,10 +26,12 @@ abstract class BaseRepository
      */
     protected function getModelClass()
     {
-        if (!method_exists($this, 'model')) {
-            throw new \RuntimeException('No mode defined');
+        try {
+            return new ($this->model())();
+        } catch (\Exception $e) {
+            throw new ModelNotDefinedException();
         }
-        return new ($this->model())();
+
     }
 
     public function all(?array $data = [])
