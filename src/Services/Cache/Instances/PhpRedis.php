@@ -113,6 +113,15 @@ final class PhpRedis implements Cache
 
     /**
      * @param $key
+     * @return bool
+     */
+    public function checkKeyExist($key): bool
+    {
+        return (bool)$this->redisClient->exists($key);
+    }
+
+    /**
+     * @param $key
      * @param $value
      * @param int $ttl
      * @return bool
