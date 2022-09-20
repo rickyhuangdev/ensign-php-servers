@@ -9,7 +9,7 @@ use Rickytech\Library\Services\Cache\Contracts\Cache;
 final class PhpRedis implements Cache
 {
     private static ?PhpRedis $phpRedis = null;
-    protected mixed $redisClient;
+    public mixed $redisClient;
     protected int $default = 3600;
 
     /**
