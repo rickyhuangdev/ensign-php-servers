@@ -27,7 +27,7 @@ abstract class BaseRepository
     protected function getModelClass()
     {
         if (!method_exists($this, 'model')) {
-            throw new ModelNotDefinedException();
+            throw new \RuntimeException('No mode defined');
         }
         return new ($this->model())();
     }
