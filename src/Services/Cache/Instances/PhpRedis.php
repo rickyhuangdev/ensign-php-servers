@@ -68,7 +68,7 @@ final class PhpRedis implements Cache
     public function remember($key, $ttl, \Closure $callback)
     {
         $value = $this->get($key);
-        if ($value !== false) {
+        if ($value !== null) {
             return $value;
         }
         $this->put($key, $value = $callback(), $ttl);
@@ -91,7 +91,8 @@ final class PhpRedis implements Cache
      */
     public function get($key, $default = null)
     {
-        return json_decode($this->redisClient->get($key),true);
+        return json_decode($this->redisClient->get($key), true);
+
     }
 
     /**
