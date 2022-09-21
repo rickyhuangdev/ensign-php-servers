@@ -91,7 +91,7 @@ final class PhpRedis implements Cache
      */
     public function get($key, $default = null)
     {
-        return unserialize($this->redisClient->get($key));
+        return json_decode($this->redisClient->get($key),true);
     }
 
     /**
@@ -128,7 +128,7 @@ final class PhpRedis implements Cache
      */
     public function put($key, $value, int $ttl = 3600): bool
     {
-        return $this->redisClient->set($key, serialize($value), $ttl);
+        return $this->redisClient->set($key, json_encode($value, JSON_UNESCAPED_UNICODE), $ttl);
     }
 
     /**
@@ -139,7 +139,7 @@ final class PhpRedis implements Cache
      */
     public function setHashData($key, $field, $value)
     {
-        return $this->redisClient->hSet($key, $field, serialize($value));
+        return $this->redisClient->hSet($key, $field, json_encode($value, JSON_UNESCAPED_UNICODE));
     }
 
     /**
@@ -149,7 +149,7 @@ final class PhpRedis implements Cache
      */
     public function getHashDataField($key, $field)
     {
-        return unserialize($this->redisClient->hGet($key, $field));
+        return json_decode($this->redisClient->hGet($key, $field),true);
     }
 
     /**
