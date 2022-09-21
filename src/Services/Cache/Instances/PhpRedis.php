@@ -71,7 +71,7 @@ final class PhpRedis implements Cache
         if ($value !== false) {
             return $value;
         }
-        $this->put($key, $value = $callback(), value($ttl));
+        $this->put($key, $value = $callback(), $ttl);
         return $value;
     }
 
@@ -91,7 +91,7 @@ final class PhpRedis implements Cache
      */
     public function get($key, $default = null)
     {
-        return json_decode($this->redisClient->get($key),true);
+        return $this->redisClient->get($key);
     }
 
     /**
@@ -128,7 +128,7 @@ final class PhpRedis implements Cache
      */
     public function put($key, $value, int $ttl = 3600): bool
     {
-        return $this->redisClient->set($key, json_encode($value, JSON_UNESCAPED_UNICODE), $ttl);
+        return $this->redisClient->set($key, $value, $ttl);
     }
 
     /**
