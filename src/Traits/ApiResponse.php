@@ -31,11 +31,11 @@ trait ApiResponse
     }
 
     /**
-     * @param array|Model|Collection|LengthAwarePaginator|null $data
+     * @param array|Model|Collection|LengthAwarePaginator|null|Hyperf\Utils\Collection $data
      * @param string|null $message
      * @return array
      */
-    public function success(array|null|Model|Collection|LengthAwarePaginator $data, string|null $message = ''): array
+    public function success(array|null|Model|Collection|LengthAwarePaginator|Hyperf\Utils\Collection $data, string|null $message = ''): array
     {
         return $this->result(true, $data, $message, $this->statusCode);
     }
