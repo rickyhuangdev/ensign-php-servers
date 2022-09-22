@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace Rickytech\Library\Traits;
 
 use Hyperf\Database\Model\Collection;
@@ -7,6 +8,7 @@ use Hyperf\Database\Model\Model;
 use Rickytech\Library\Exceptions\ApiResponseException;
 use Hyperf\Paginator\LengthAwarePaginator;
 use Symfony\Component\HttpFoundation\Response as FoundationResponse;
+use Hyperf\Utils\Collection as UtilCollection;
 
 trait ApiResponse
 {
@@ -31,11 +33,11 @@ trait ApiResponse
     }
 
     /**
-     * @param array|Model|Collection|LengthAwarePaginator|null|Hyperf\Utils\Collection $data
+     * @param array|Model|Collection|LengthAwarePaginator|null|UtilCollection $data
      * @param string|null $message
      * @return array
      */
-    public function success(array|null|Model|Collection|LengthAwarePaginator|Hyperf\Utils\Collection $data, string|null $message = ''): array
+    public function success(array|null|Model|Collection|LengthAwarePaginator|UtilCollection $data, string|null $message = ''): array
     {
         return $this->result(true, $data, $message, $this->statusCode);
     }
@@ -58,9 +60,9 @@ trait ApiResponse
      * @param int $code
      * @return array
      */
-    private function result(bool $success, array|null|Model|Collection|LengthAwarePaginator|Hyperf\Utils\Collection $data, string|null $message, int $code = 200): array
+    private function result(bool $success, array|null|Model|Collection|LengthAwarePaginator|UtilCollection $data, string|null $message, int $code = 200): array
     {
-        if ($data instanceof Collection || $data instanceof Model) {
+        if ($data instanceof Collection || $data instanceof Model || $data instanceof UtilCollection) {
             $data = $data->toArray();
         }
         if ($data instanceof LengthAwarePaginator) {
@@ -79,12 +81,12 @@ trait ApiResponse
             ];
         }
         return [
-            'success'      => $success,
-            'code'         => $code,
-            'message'      => $message,
-            'data'         => $data,
+            'success' => $success,
+            'code' => $code,
+            'message' => $message,
+            'data' => $data,
             'errorMessage' => !$success ? $message : null,
-            'errorCode'    => !$success ? $code : null,
+            'errorCode' => !$success ? $code : null,
         ];
     }
 }
