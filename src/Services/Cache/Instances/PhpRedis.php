@@ -136,20 +136,34 @@ final class PhpRedis implements Cache
      * @param $key
      * @param $field
      * @param $value
-     * @return string
+     * @param $encode
+     * @param $serialize
+     * @return mixed
      */
-    public function setHashData($key, $field, $value)
+    public function setHashData($key, $field, $value, $encode, $serialize)
     {
+        if ($encode) {
+            $value = json_encode($value);
+        } elseif ($serialize) {
+            $value = serialize($value);
+        }
         return $this->redisClient->hSet($key, $field, $value);
     }
 
     /**
      * @param $key
      * @param $field
+     * @param $dencode
+     * @param $unserialize
      * @return mixed
      */
-    public function getHashDataField($key, $field)
+    public function getHashDataField($key, $field, $decode, $unserialize)
     {
+        if ($decode) {
+            return json_decode($this->redisClient->hGet($key, $field));
+        } elseif ($unserialize) {
+            return unserialize($this->redisClient->hGet($key, $field));
+        }
         return $this->redisClient->hGet($key, $field);
     }
 
