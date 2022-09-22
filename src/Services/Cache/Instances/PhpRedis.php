@@ -171,4 +171,14 @@ final class PhpRedis implements Cache
     {
         return $this->redisClient->hExists($key, $field);
     }
+
+    public function serializeCache($key, $ttl, \Closure $callback)
+    {
+        $value = $this->get($key);
+        if ($value !== null) {
+            return unserialize($value);
+        }
+        $this->put($key, $value = serialize($callback()), $ttl);
+        return unserialize($value);
+    }
 }
