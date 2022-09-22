@@ -53,12 +53,12 @@ trait ApiResponse
 
     /**
      * @param bool $success
-     * @param array|Model|Collection|LengthAwarePaginator|null $data
+     * @param array|Model|Collection|LengthAwarePaginator|null|Hyperf\Utils\Collection $data
      * @param string|null $message
      * @param int $code
      * @return array
      */
-    private function result(bool $success, array|null|Model|Collection|LengthAwarePaginator $data, string|null $message, int $code = 200): array
+    private function result(bool $success, array|null|Model|Collection|LengthAwarePaginator|Hyperf\Utils\Collection $data, string|null $message, int $code = 200): array
     {
         if ($data instanceof Collection || $data instanceof Model) {
             $data = $data->toArray();
