@@ -136,11 +136,11 @@ final class PhpRedis implements Cache
      * @param $key
      * @param $field
      * @param $value
-     * @param $encode
-     * @param $serialize
+     * @param bool $encode
+     * @param bool $serialize
      * @return mixed
      */
-    public function setHashData($key, $field, $value, $encode, $serialize)
+    public function setHashData($key, $field, $value, bool $encode = false, bool $serialize = true)
     {
         if ($encode) {
             $value = json_encode($value);
@@ -153,11 +153,11 @@ final class PhpRedis implements Cache
     /**
      * @param $key
      * @param $field
-     * @param $dencode
-     * @param $unserialize
+     * @param bool $decode
+     * @param bool $unserialize
      * @return mixed
      */
-    public function getHashDataField($key, $field, $decode, $unserialize)
+    public function getHashDataField($key, $field, bool $decode = false, bool $unserialize = false)
     {
         if ($decode) {
             return json_decode($this->redisClient->hGet($key, $field));
