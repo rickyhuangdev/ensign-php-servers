@@ -6,6 +6,7 @@ namespace Rickytech\Library\Traits;
 use Hyperf\Database\Model\Collection;
 use Hyperf\Database\Model\Model;
 use Hyperf\Paginator\LengthAwarePaginator;
+use Hyperf\Resource\Json\ResourceCollection;
 use Hyperf\Utils\Collection as UtilCollection;
 use Rickytech\Library\Exceptions\ApiResponseException;
 use Symfony\Component\HttpFoundation\Response as FoundationResponse;
@@ -65,7 +66,7 @@ trait ApiResponse
         if ($data instanceof Collection || $data instanceof Model || $data instanceof UtilCollection) {
             $data = $data->toArray();
         }
-        if ($data instanceof LengthAwarePaginator) {
+        if ($data instanceof LengthAwarePaginator || $data instanceof ResourceCollection) {
             return [
                 'success' => true,
                 'code' => $code,
