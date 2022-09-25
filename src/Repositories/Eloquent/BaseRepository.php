@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace Rickytech\Library\Repositories\Eloquent;
 
+use Hyperf\Database\Model\Model;
 use Hyperf\Database\Model\ModelNotFoundException;
 use Hyperf\Utils\Arr;
 use Rickytech\Library\Exceptions\ModelNotDefinedException;
@@ -12,19 +13,20 @@ use Swoole\Database\MysqliException;
 abstract class BaseRepository
 {
     use TreeList;
+
     protected $model;
     protected $cache;
+
     public function __construct()
     {
         $this->model = $this->getModelClass();
-        $this->cache = PhpRedis::getPhpRedis();
-        ;
+        $this->cache = PhpRedis::getPhpRedis();;
     }
 
     /**
      * @throws ModelNotDefinedException
      */
-    protected function getModelClass()
+    protected function getModelClass(): Model
     {
         if (!method_exists($this, 'model')) {
             throw new ModelNotDefinedException();
