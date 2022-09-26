@@ -127,8 +127,11 @@ final class PhpRedis implements Cache
      * @param int $ttl
      * @return bool
      */
-    public function put($key, $value, int $ttl = 3600): bool
+    public function put($key, $value, int|string $ttl = 3600): bool
     {
+        if ($ttl === '-1') {
+            return $this->redisClient->set($key, $value);
+        }
         return $this->redisClient->set($key, $value, $ttl);
     }
 
