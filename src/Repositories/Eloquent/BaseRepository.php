@@ -48,6 +48,15 @@ abstract class BaseRepository
         }
     }
 
+    public function findWhereFirst(array $where, $filed)
+    {
+        try {
+            return $this->model->where($where)->selectRaw($filed)->first();
+        } catch (ModelNotFoundException $e) {
+            throw new \RuntimeException('The requested resource was not found on this server', 404);
+        }
+    }
+
     public function create(array $data)
     {
         try {
