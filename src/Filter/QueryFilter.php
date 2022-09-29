@@ -26,7 +26,7 @@ abstract class QueryFilter
                 call_user_func_array([$this, $name], array_filter([$value]));
             }
         }
-
+        var_dump($this->builder);
         return $this->builder;
     }
 
