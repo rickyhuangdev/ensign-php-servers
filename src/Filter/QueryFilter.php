@@ -30,8 +30,8 @@ abstract class QueryFilter
         return $this->builder;
     }
 
-    public function id($id)
-    {
-        return $this->builder->where('id', $id);
-    }
+//    public function id($id)
+//    {
+//        return $this->builder->where('id', $id);
+//    }
 }
