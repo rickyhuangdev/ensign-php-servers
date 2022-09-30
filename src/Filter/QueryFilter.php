@@ -29,8 +29,8 @@ abstract class QueryFilter
         return $this->builder;
     }
 
-//    public function id($id)
-//    {
-//        return $this->builder->where('id', $id);
-//    }
+    protected function getInstrBuilder(string $field, string $keyword)
+    {
+        return $this->builder->whereRaw("INSTR(`{$field}`, ?) > 0", ["$keyword"]);
+    }
 }
