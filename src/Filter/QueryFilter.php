@@ -44,7 +44,7 @@ abstract class QueryFilter
     protected function getBuilderRelationEqual(string $relation, string $field, string $keyword)
     {
         return $this->builder->whereHas("{$relation}", function ($query) use ($field, $keyword) {
-            $query->where('$field', '=', "{$keyword}");
+            $query->where("{$field}", '=', "{$keyword}");
         });
     }
 }
