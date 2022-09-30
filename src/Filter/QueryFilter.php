@@ -33,4 +33,11 @@ abstract class QueryFilter
     {
         return $this->builder->whereRaw("INSTR(`{$field}`, ?) > 0", ["$keyword"]);
     }
+
+    protected function getInstrBuilderRelation(string $relation, string $field, string $keyword)
+    {
+        return $this->builder->whereHas("{$relation}", function ($query) use ($field, $keyword) {
+            $query->whereRaw("INSTR(`{$field}`, ?) > 0", ["{$keyword}"]);
+        });
+    }
 }
