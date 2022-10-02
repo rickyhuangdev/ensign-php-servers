@@ -91,7 +91,7 @@ final class PhpRedis implements Cache
      */
     public function get($key, $default = null)
     {
-        return json_decode($this->redisClient->get($key), true);
+        return $this->redisClient->get($key);
 
     }
 
@@ -192,7 +192,7 @@ final class PhpRedis implements Cache
     public function serializeCache($key, $ttl, \Closure $callback)
     {
         $value = $this->get($key);
-        if ($value) {
+        if ($value !== null) {
             return unserialize($value);
         }
         $this->put($key, $value = serialize($callback()), $ttl);
