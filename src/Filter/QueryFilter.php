@@ -47,4 +47,17 @@ abstract class QueryFilter
             $query->where("{$field}", '=', "{$keyword}");
         });
     }
+
+    protected function sort($sortObject)
+    {
+        if (!empty($sortItems = json_decode($sortObject, true))) {
+            foreach ($sortItems as $itemName => $itemValue) {
+//               if (method_exists($this, $itemName)) {
+//                   call_user_func_array([$this, $itemName], array_filter([$itemValue]));
+//               }
+                $sort = $itemValue === 'ascend' ? 'ASC' : 'DESC';
+                return $this->builder->orderBy("{$itemName}", "{$sort}");
+            }
+        }
+    }
 }
