@@ -27,4 +27,22 @@ trait TreeList
 
         return $list;
     }
+
+    public function listToTreeByReference(
+        array $source,
+        string $indexKey = 'id',
+        string $parentKey = 'pid',
+        string $childrenKey = 'children'
+    ): array {
+        $items = array_column($source, null, $indexKey);
+        $tree = [];
+        foreach ($items as $key => $value) {
+            if (isset($items[$value["{$parentKey}"]])) {
+                $items[$value["{$parentKey}"]]["{$childrenKey}"][] = &$items[$key];
+            } else {
+                $tree[] = &$items[$key];
+            }
+        }
+        return $tree;
+    }
 }
