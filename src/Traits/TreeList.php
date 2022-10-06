@@ -30,9 +30,9 @@ trait TreeList
 
     public function listToTreeByReference(
         array $source,
-        string $indexKey = 'id',
-        string $parentKey = 'pid',
-        string $childrenKey = 'children'
+        ?string $indexKey = 'id',
+        ?string $parentKey = 'pid',
+        ?string $childrenKey = 'children'
     ): array {
         $items = array_column($source, null, $indexKey);
         $tree = [];
