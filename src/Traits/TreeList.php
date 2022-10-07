@@ -34,7 +34,7 @@ trait TreeList
         ?string $parentKey = 'pid',
         ?string $childrenKey = 'children'
     ): array {
-        $items = array_column($source, null, $indexKey);
+        $items = array_column($source, null, (string)$indexKey);
         $tree = [];
         foreach ($items as $key => $value) {
             if (isset($items[$value["{$parentKey}"]])) {
