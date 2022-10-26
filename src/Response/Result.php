@@ -27,17 +27,17 @@ class Result
         return self::result(true, $data, $message, $code);
     }
 
-    public function created(mixed $data, string|null $message = '', string|int $code = self::CREATED_SUCCESS)
+    public static function created(mixed $data, string|null $message = '', string|int $code = self::CREATED_SUCCESS)
     {
         return self::result(true, $data, $message, $code);
     }
 
-    public function updated(mixed $data, string|null $message = '', string|int $code = self::UPDATED_SUCCESS)
+    public static function updated(mixed $data, string|null $message = '', string|int $code = self::UPDATED_SUCCESS)
     {
         return self::result(true, $data, $message, $code);
     }
 
-    public function deleted(mixed $data, string|null $message = '', string|int $code = self::DELETE_SUCCESS)
+    public static function deleted(mixed $data, string|null $message = '', string|int $code = self::DELETE_SUCCESS)
     {
         return self::result(true, $data, $message, $code);
     }
