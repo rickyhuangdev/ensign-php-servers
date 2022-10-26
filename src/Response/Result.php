@@ -16,6 +16,11 @@ class Result
     const DATA_NOTFOUND = 400002;
     const SESSION_EXPIRED = 400003;
     const FORBIDDEN = 400004;
+    const SERVER_ERROR = 500000;
+    const MSG_SUCCESS = 'success';
+    const MSG_CREATED_SUCCESS = 'Created successfully';
+    const MSG_UPDATED_SUCCESS = 'Updated successfully';
+    const MSG_DELETE_SUCCESS = 'Deleted successfully';
 
     public static function success(mixed $data = null, string|null $message = '', string|int $code = self::SUCCESS)
     {
