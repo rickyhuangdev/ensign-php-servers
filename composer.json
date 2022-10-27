@@ -30,7 +30,8 @@
         "symfony/http-foundation": "^6.1",
         "hyperf/exception-handler": "~3.0.0",
         "hyperf/paginator": "~3.0.0",
-        "hyperf/elasticsearch": "~3.0.0"
+        "hyperf/elasticsearch": "~3.0.0",
+        "robinvdvleuten/ulid": "^5.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "v3.10.0",
