@@ -198,4 +198,9 @@ final class PhpRedis implements Cache
         $this->put($key, $value = serialize($callback()), $ttl);
         return unserialize($value);
     }
+
+    public function deleteHashDataFieldByKey(string $key, string $field)
+    {
+        return $this->redisClient->hDel($key, $field);
+    }
 }
