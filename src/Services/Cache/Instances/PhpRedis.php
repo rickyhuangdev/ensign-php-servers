@@ -203,4 +203,25 @@ final class PhpRedis implements Cache
     {
         return $this->redisClient->hDel($key, $field);
     }
+
+    public function rememberHashData(
+        string $key,
+        string $field,
+        \Closure $closure,
+        $ttl = 7200
+    ) {
+        $value = $this->getHashDataField($key, $field, false, true);
+
+        if (!is_bool($value)) {
+            return $value;
+        }
+        $this->setHashDataByCallback($key, $field, $value = $closure(),$ttl);
+        return $value;
+    }
+
+    private function setHashDataByCallback($key, $field, $data, $ttl)
+    {
+         $this->redisClient->hSet($key, $field, serialize($data));
+         $this->redisClient->expire($key, $ttl);
+    }
 }
