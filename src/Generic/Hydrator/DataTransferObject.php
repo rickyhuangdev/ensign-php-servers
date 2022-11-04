@@ -9,7 +9,7 @@ class DataTransferObject
      * @param object $object
      * @return object
      */
-    public static function convertToObject(array $array, object $object): object
+    public static function hydrate(array $array, object $object): object
     {
         $class = get_class($object);
         $methodList = get_class_methods($class);
