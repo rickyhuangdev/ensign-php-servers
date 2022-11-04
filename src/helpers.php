@@ -1,7 +1,8 @@
 <?php
 declare(strict_types=1);
-use \Hyperf\Utils\Collection;
+
 use Hyperf\Paginator\LengthAwarePaginator;
+use Hyperf\Utils\Collection;
 
 if (!function_exists('convertArrayToTree')) {
     function convertArrayToTree(array|Collection|LengthAwarePaginator $data, $id = 0, $level = 0, string $primaryKey = 'id', string $parentKey = 'pid', string $childrenKey = 'children')
@@ -21,5 +22,16 @@ if (!function_exists('convertArrayToTree')) {
             }
         }
         return $list;
+    }
+}
+
+if (!function_exists('dashesToCamelCase')) {
+    function dashesToCamelCase($string, $capitalizeFirstCharacter = false): array|string
+    {
+        $str = str_replace(' ', '', ucwords(str_replace('-', ' ', $string)));
+        if (!$capitalizeFirstCharacter) {
+            $str[0] = strtolower($str[0]);
+        }
+        return $str;
     }
 }
