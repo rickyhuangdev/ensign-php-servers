@@ -215,7 +215,10 @@ final class PhpRedis implements Cache
         if (!is_bool($value)) {
             return $value;
         }
-        $this->setHashDataByCallback($key, $field, $value = $closure(),$ttl);
+        if (!$value = $closure()) {
+            return $value;
+        }
+        $this->setHashDataByCallback($key, $field, $value, $ttl);
         return $value;
     }
 
