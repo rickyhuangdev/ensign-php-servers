@@ -35,3 +35,9 @@ if (!function_exists('dashesToCamelCase')) {
         return $str;
     }
 }
+if (!function_exists('camelCaseToUnderscore')) {
+    function camelCaseToUnderscore($input): string
+    {
+        return ltrim(strtolower(preg_replace('/[A-Z]([A-Z](?![a-z]))*/', '_$0', $input)), '_');
+    }
+}
