@@ -17,8 +17,7 @@ class DefaultCast
         private string $targetClass,
         #[Immutable]
         private string $casterClass,
-    )
-    {
+    ) {
     }
 
     public function accepts(ReflectionProperty $property): bool

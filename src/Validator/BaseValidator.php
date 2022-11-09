@@ -7,7 +7,6 @@ use Hyperf\Validation\Contract\ValidatorFactoryInterface;
 use Rickytech\Library\Exceptions\FormRequestException;
 use Rickytech\Library\Response\Result;
 
-
 class BaseValidator
 {
     #[Inject]

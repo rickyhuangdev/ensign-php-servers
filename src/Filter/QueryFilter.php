@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace Rickytech\Library\Filter;
 
 use Hyperf\Database\Model\Builder;
@@ -23,6 +24,9 @@ abstract class QueryFilter
 
         foreach ($this->data as $name => $value) {
             if (method_exists($this, $name)) {
+                if (is_null($value)) {
+                    continue;
+                }
                 call_user_func_array([$this, $name], array_filter([$value]));
             }
         }

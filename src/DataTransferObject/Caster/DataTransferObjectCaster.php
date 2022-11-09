@@ -2,14 +2,11 @@
 
 namespace Rickytech\Library\DataTransferObject\Caster;
 
-
-
 use Rickytech\Library\DataTransferObject\Caster;
 use Rickytech\Library\DataTransferObject\DataTransferObject;
 
 class DataTransferObjectCaster implements Caster
 {
-
     public function __construct(
         private array $classNames
     ) {

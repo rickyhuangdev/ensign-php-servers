@@ -2,7 +2,6 @@
 
 namespace Rickytech\Library\DataTransferObject\Reflection;
 
-
 use JetBrains\PhpStorm\Immutable;
 use ReflectionAttribute;
 use ReflectionClass;
@@ -17,7 +16,6 @@ use Rickytech\Library\DataTransferObject\DataTransferObject;
 use Rickytech\Library\DataTransferObject\MapFrom;
 use Rickytech\Library\DataTransferObject\Validator;
 
-
 class DataTransferObjectProperty
 {
     #[Immutable]
@@ -30,8 +28,7 @@ class DataTransferObjectProperty
     public function __construct(
         DataTransferObject $dataTransferObject,
         ReflectionProperty $reflectionProperty
-    )
-    {
+    ) {
         $this->dataTransferObject = $dataTransferObject;
         $this->reflectionProperty = $reflectionProperty;
 
@@ -66,7 +63,7 @@ class DataTransferObjectProperty
         $attribute = $attributes[0]->newInstance();
 
         return new $attribute->casterClass(
-            array_map(fn($type) => $this->resolveTypeName($type), $this->extractTypes()),
+            array_map(fn ($type) => $this->resolveTypeName($type), $this->extractTypes()),
             ...$attribute->args
         );
     }
@@ -177,6 +174,4 @@ class DataTransferObjectProperty
     {
         return $this->reflectionProperty->getValue($this->dataTransferObject);
     }
-
-
 }

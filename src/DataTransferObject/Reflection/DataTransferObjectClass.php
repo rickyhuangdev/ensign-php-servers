@@ -2,13 +2,11 @@
 
 namespace Rickytech\Library\DataTransferObject\Reflection;
 
-
 use ReflectionClass;
 use ReflectionProperty;
 use Rickytech\Library\DataTransferObject\Attributes\Strict;
 use Rickytech\Library\DataTransferObject\DataTransferObject;
 use Rickytech\Library\DataTransferObject\Exceptions\ValidationException;
-
 
 class DataTransferObjectClass
 {
@@ -20,7 +18,8 @@ class DataTransferObjectClass
         $this->dataTransferObject = $dataTransferObject;
     }
 
-    public function getProperties(){
+    public function getProperties()
+    {
         $publicProperties = array_filter(
             $this->reflectionClass->getProperties(ReflectionProperty::IS_PUBLIC),
             fn (ReflectionProperty $property) => ! $property->isStatic()
@@ -79,5 +78,4 @@ class DataTransferObjectClass
             throw new ValidationException($this->dataTransferObject, $validationErrors);
         }
     }
-
 }

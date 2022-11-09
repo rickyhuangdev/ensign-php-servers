@@ -92,7 +92,6 @@ final class PhpRedis implements Cache
     public function get($key, $default = null)
     {
         return $this->redisClient->get($key);
-
     }
 
     /**
@@ -217,10 +216,8 @@ final class PhpRedis implements Cache
         }
         !$value = $closure();
         if (!$value) {
-            echo 333;
             return $value;
-        }else{
-            echo 777;
+        } else {
             $this->setHashDataByCallback($key, $field, $value, $ttl);
         }
 
@@ -229,7 +226,7 @@ final class PhpRedis implements Cache
 
     private function setHashDataByCallback($key, $field, $data, $ttl)
     {
-         $this->redisClient->hSet($key, $field, serialize($data));
-         $this->redisClient->expire($key, $ttl);
+        $this->redisClient->hSet($key, $field, serialize($data));
+        $this->redisClient->expire($key, $ttl);
     }
 }

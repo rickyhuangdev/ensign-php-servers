@@ -1,17 +1,8 @@
 <?php
 
 declare(strict_types=1);
-/**
- * This file is part of Hyperf.
- *
- * @link     https://www.hyperf.io
- * @document https://hyperf.wiki
- * @contact  group@hyperf.io
- * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
- */
 
 namespace Rickytech\Library\DataTransferObject;
-
 
 use ReflectionClass;
 use ReflectionProperty;
@@ -20,7 +11,6 @@ use Rickytech\Library\DataTransferObject\Caster\DataTransferObjectCaster;
 use Rickytech\Library\DataTransferObject\Exceptions\UnknownProperties;
 use Rickytech\Library\DataTransferObject\Exceptions\ValidationException;
 use Rickytech\Library\DataTransferObject\Reflection\DataTransferObjectClass;
-
 
 #[CastWith(DataTransferObjectCaster::class)]
 abstract class DataTransferObject
@@ -48,7 +38,6 @@ abstract class DataTransferObject
             throw UnknownProperties::new(static::class, array_keys($args));
         }
         $class->validate();
-
     }
 
     public static function arrayOf(array $arrayOfParameters): array
@@ -117,5 +106,4 @@ abstract class DataTransferObject
 
         return $array;
     }
-
 }
