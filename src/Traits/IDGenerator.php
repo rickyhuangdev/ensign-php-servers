@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Rickytech\Library\Traits;
 
-use Ulid\Ulid;
 
 trait IDGenerator
 {
@@ -12,9 +11,8 @@ trait IDGenerator
      */
     public function creating()
     {
-        $ulid = Ulid::generate();
         if (!$this->getKey()) {
-            $this->{$this->getKeyName()} = (string)$ulid;
+            $this->{$this->getKeyName()} = (new PrimaryID(3))->getId();
         }
     }
 
