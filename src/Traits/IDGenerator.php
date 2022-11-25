@@ -12,7 +12,9 @@ trait IDGenerator
     public function creating()
     {
         if (!$this->getKey()) {
-            $this->{$this->getKeyName()} = (new PrimaryID(3))->getId();
+            $snowflake = new \Godruoyi\Snowflake\Snowflake;
+            $snowflake->setStartTimeStamp(strtotime('2022-01-01') * 1000); // millisecond
+            $this->{$this->getKeyName()} = $snowflake->id();
         }
     }
 
