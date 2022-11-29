@@ -3,6 +3,7 @@
 namespace Rickytech\Library\Response;
 
 use Hyperf\Paginator\LengthAwarePaginator;
+use Hyperf\Paginator\Paginator;
 use Hyperf\Utils\Collection as UtilCollection;
 
 class Result
@@ -57,6 +58,21 @@ class Result
                 'current' => $data->currentPage(),
                 'pageSize' => $data->perPage(),
                 'totalPage' => $data->lastPage(),
+                'errorMessage' => !$success ? $message : null,
+                'errorCode' => !$success ? $code : null,
+
+            ];
+        }
+        if ($data instanceof Paginator) {
+            return [
+                'success' => true,
+                'code' => $code,
+                'message' => $message,
+                'data' => $data->items(),
+                'total' => $data->count(),
+                'current' => $data->currentPage(),
+                'pageSize' => $data->perPage(),
+                'totalPage' => $data->count(),
                 'errorMessage' => !$success ? $message : null,
                 'errorCode' => !$success ? $code : null,
 
