@@ -158,9 +158,12 @@ abstract class BaseDao implements BaseMapperInterface
             ->select($fields)->paginate(perPage: $pageSize, page: $current);
     }
 
-    public function count(string $column = '*'): int
+    public function count(string $column = '*', array $where = []): int
     {
-        return $this->getModel()::count($column);
+        return $this->getModel()::query()
+            ->when($where, function ($query) use ($where) {
+                return $query->where($where);
+            })->count($column);
     }
 
     private function getPrimaryKeyValue()

@@ -43,7 +43,7 @@ interface BaseMapperInterface
 
     public function queryPageByFilter(array $where = [], QueryFilter $filters = null, int $current = 1, int $pageSize = 15, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface;
 
-    public function count(string $column = '*'): int;
+    public function count(string $column = '*',array $where = []): int;
 
 
 }
