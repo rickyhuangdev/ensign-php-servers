@@ -4,7 +4,6 @@ namespace Rickytech\Library\Services\Models;
 
 use Hyperf\Database\Model\Model;
 use Hyperf\Utils\Collection;
-use Rickytech\Library\Filter\QueryFilter;
 
 interface BaseMapperInterface
 {
@@ -41,9 +40,9 @@ interface BaseMapperInterface
 
     public function queryPage(array $where = [], int $current = 1, int $pageSize = 115, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface;
 
-    public function queryPageByFilter(array $where = [], QueryFilter $filters = null, int $current = 1, int $pageSize = 15, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface;
+    public function queryPageByFilter(array $where = [], mixed $filters = null, int $current = 1, int $pageSize = 15, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface;
 
-    public function count(string $column = '*',array $where = []): int;
+    public function count(string $column = '*', array $where = []): int;
 
 
 }
