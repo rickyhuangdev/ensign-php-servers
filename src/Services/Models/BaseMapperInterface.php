@@ -8,8 +8,6 @@ use Hyperf\Utils\Collection;
 interface BaseMapperInterface
 {
 
-    public function getModel(): Model|null;
-
     public function list(): Collection|null;
 
     public function listByIds(array $ids, array $field = ['*']): Collection|null;
@@ -40,7 +38,7 @@ interface BaseMapperInterface
 
     public function queryPage(array $where = [], int $current = 1, int $pageSize = 115, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface;
 
-    public function queryPageByFilter(array $where = [], mixed $filters = null, int $current = 1, int $pageSize = 15, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface;
+    public function queryPageByFilter(array $where = [], object|null $filters = null, int $current = 1, int $pageSize = 15, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface;
 
     public function count(string $column = '*', array $where = []): int;
 

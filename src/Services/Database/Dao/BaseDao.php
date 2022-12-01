@@ -10,7 +10,6 @@ use Hyperf\Utils\Arr;
 use Hyperf\Utils\Collection;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Rickytech\Library\Filter\QueryFilter;
 use Rickytech\Library\Services\Models\BaseMapperInterface;
 use Rickytech\Library\Traits\TreeList;
 
@@ -20,13 +19,9 @@ abstract class BaseDao implements BaseMapperInterface
 
     abstract protected function setModel(): string;
 
-    public function getModel(): Model|null
+    protected function getModel(): Model|null
     {
-        try {
-            return ApplicationContext::getContainer()->get($this->getModel());
-        } catch (NotFoundExceptionInterface|ContainerExceptionInterface $e) {
-            throw new \RuntimeException($e->getMessage(), $e->getCode());
-        }
+        return make($this->setModel(), ['enableCache' => true]);
     }
 
     public function list(): Collection|null
@@ -149,11 +144,11 @@ abstract class BaseDao implements BaseMapperInterface
         return $this->getModel()::query()->where($where)->select($fields)->paginate(perPage: $pageSize ?? 15, page: $current ?? 1);
     }
 
-    public function queryPageByFilter(array $where = [], mixed $filters = null, int $current = 1, int $pageSize = 15, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface
+    public function queryPageByFilter(array $where = [], object|null $filters = null, int $current = 1, int $pageSize = 15, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface
     {
         return $this->getModel()::query()
             ->where($where)
-            ->when($filters, function ($query) use ($filters, $where) {
+            ->when(is_object($filters), function ($query) use ($filters) {
                 return $query->filter($filters);
             })
             ->select($fields)->paginate(perPage: $pageSize ?? 15, page: $current ?? 1);
