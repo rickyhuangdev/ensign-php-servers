@@ -153,7 +153,7 @@ abstract class BaseDao implements BaseMapperInterface
     {
         return $this->getModel()::where($where)
             ->when($filters, function ($query) use ($filters, $where) {
-                return $query->filter(new $filters($where));
+                return $query->filter($filters);
             })
             ->select($fields)->paginate(perPage: $pageSize ?? 15, page: $current ?? 1);
     }
