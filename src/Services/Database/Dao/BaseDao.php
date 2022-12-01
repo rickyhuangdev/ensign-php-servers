@@ -146,16 +146,16 @@ abstract class BaseDao implements BaseMapperInterface
 
     public function queryPage(array $where = [], int $current = 1, int $pageSize = 115, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface
     {
-        return $this->getModel()::where($where)->select($fields)->paginate(perPage: $pageSize, page: $current);
+        return $this->getModel()::where($where)->select($fields)->paginate(perPage: $pageSize ?? 15, page: $current ?? 1);
     }
 
     public function queryPageByFilter(array $where = [], QueryFilter $filters = null, int $current = 1, int $pageSize = 15, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface
     {
         return $this->getModel()::where($where)
-            ->when($filters, function ($query) use ($filters) {
-                return $query->filter($filters);
+            ->when($filters, function ($query) use ($filters, $where) {
+                return $query->filter(new $filters($where));
             })
-            ->select($fields)->paginate(perPage: $pageSize, page: $current);
+            ->select($fields)->paginate(perPage: $pageSize ?? 15, page: $current ?? 1);
     }
 
     public function count(string $column = '*', array $where = []): int
