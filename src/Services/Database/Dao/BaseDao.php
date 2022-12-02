@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Rickytech\Library\Services\Database\Dao;
 
 use Carbon\Carbon;
-use Hyperf\Contract\IdGeneratorInterface;
+use Hyperf\Snowflake\IdGeneratorInterface;
 use Hyperf\Database\Model\Model;
 use Hyperf\Utils\ApplicationContext;
 use Hyperf\Utils\Arr;
@@ -82,7 +82,7 @@ abstract class BaseDao implements BaseMapperInterface
     {
         if (!$autoIncrement) {
             foreach ($data as &$value) {
-                if (Arr::exists($value, $primaryKey)) {
+                if (!Arr::exists($value, $primaryKey)) {
                     $value['id'] = $this->getPrimaryKeyValue();
                 }
                 if ($autoInsertDate) {
