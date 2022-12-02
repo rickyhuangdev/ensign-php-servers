@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace Rickytech\Library\Services\Database\Dao;
 
 use Carbon\Carbon;
-use Hyperf\Snowflake\IdGeneratorInterface;
 use Hyperf\Database\Model\Model;
+use Hyperf\Snowflake\IdGeneratorInterface;
 use Hyperf\Utils\ApplicationContext;
 use Hyperf\Utils\Arr;
 use Hyperf\Utils\Collection;
@@ -142,20 +142,32 @@ abstract class BaseDao implements BaseMapperInterface
         return $this->getModel()::query()->where($where)->delete();
     }
 
-    public function page(int $current, int $pageSize, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface
+    public function page(int $current, int $pageSize, array $fields = ['*'], array $relations = []): \Hyperf\Contract\LengthAwarePaginatorInterface
     {
-        return $this->getModel()::select($fields)->paginate(perPage: $pageSize ?? 15, page: $current ?? 1);
+        return $this->getModel()::select($fields)
+            ->when($relations, function ($query) use ($relations) {
+                $query->with($relations);
+            })
+            ->paginate(perPage: $pageSize ?? 15, page: $current ?? 1);
     }
 
-    public function queryPage(array $where = [], int $current = 1, int $pageSize = 15, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface
-    {
-        return $this->getModel()::query()->where($where)->select($fields)->paginate(perPage: $pageSize ?? 15, page: $current ?? 1);
-    }
-
-    public function queryPageByFilter(array $where = [], QueryFilter|null $filters = null, int $current = 1, int $pageSize = 15, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface
+    public function queryPage(array $where = [], int $current = 1, int $pageSize = 15, array $fields = ['*'], array $relations = []): \Hyperf\Contract\LengthAwarePaginatorInterface
     {
         return $this->getModel()::query()
             ->where($where)
+            ->when($relations, function ($query) use ($relations) {
+                $query->with($relations);
+            })
+            ->select($fields)->paginate(perPage: $pageSize ?? 15, page: $current ?? 1);
+    }
+
+    public function queryPageByFilter(array $where = [], QueryFilter|null $filters = null, int $current = 1, int $pageSize = 15, array $fields = ['*'], array $relations = []): \Hyperf\Contract\LengthAwarePaginatorInterface
+    {
+        return $this->getModel()::query()
+            ->where($where)
+            ->when($relations, function ($query) use ($relations) {
+                $query->with($relations);
+            })
             ->when(is_object($filters), function ($query) use ($filters) {
                 return $query->filter($filters);
             })

@@ -37,11 +37,11 @@ interface BaseMapperInterface
 
     public function removeByQuery(array $where): int|bool|null;
 
-    public function page(int $current, int $pageSize, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface;
+    public function page(int $current, int $pageSize, array $fields = ['*'], array $relations = []): \Hyperf\Contract\LengthAwarePaginatorInterface;
 
-    public function queryPage(array $where = [], int $current = 1, int $pageSize = 115, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface;
+    public function queryPage(array $where = [], int $current = 1, int $pageSize = 115, array $fields = ['*'], array $relations = []): \Hyperf\Contract\LengthAwarePaginatorInterface;
 
-    public function queryPageByFilter(array $where = [], QueryFilter|null $filters = null, int $current = 1, int $pageSize = 15, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface;
+    public function queryPageByFilter(array $where = [], QueryFilter|null $filters = null, int $current = 1, int $pageSize = 15, array $fields = ['*'], array $relations = []): \Hyperf\Contract\LengthAwarePaginatorInterface;
 
     public function count(string $column = '*', array $where = []): int;
 
