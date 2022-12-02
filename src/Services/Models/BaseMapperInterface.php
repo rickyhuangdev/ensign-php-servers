@@ -9,7 +9,6 @@ use Rickytech\Library\Filter\QueryFilter;
 
 interface BaseMapperInterface
 {
-
     public function list(): Collection|null;
 
     public function listByIds(array $ids, array $field = ['*']): Collection|null;
@@ -45,6 +44,4 @@ interface BaseMapperInterface
     public function queryPageByFilter(array $where = [], QueryFilter|null $filters = null, ?int $current = 1, ?int $pageSize = 15, array $fields = ['*'], array $relations = []): \Hyperf\Contract\LengthAwarePaginatorInterface;
 
     public function count(string $column = '*', array $where = []): int;
-
-
 }

@@ -1,5 +1,5 @@
 <?php
-
+declare(strict_types=1);
 namespace Rickytech\Library\Services\Models;
 
 use Hyperf\Database\Model\Model;

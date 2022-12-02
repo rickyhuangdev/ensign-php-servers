@@ -37,7 +37,9 @@
         "robinvdvleuten/ulid": "^5.0",
         "godruoyi/php-snowflake": "^2.1",
         "hyperf/db-connection": "^3.0.x-dev",
-        "hyperf/snowflake": "^3.0"
+        "hyperf/snowflake": "^3.0",
+        "illuminate/support": "^9.41",
+        "hyperf/redis": "3.0.*"
     },
     "require-dev": {
         "roave/security-advisories": "dev-latest",
