@@ -137,6 +137,11 @@ abstract class BaseDao implements BaseMapperInterface
         return $this->getModel()::destroy($ids);
     }
 
+    public function removeByQuery(array $where): int|bool|null
+    {
+        return $this->getModel()::query()->where($where)->delete();
+    }
+
     public function page(int $current, int $pageSize, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface
     {
         return $this->getModel()::select($fields)->paginate(perPage: $pageSize ?? 15, page: $current ?? 1);

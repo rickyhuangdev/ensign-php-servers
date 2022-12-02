@@ -35,6 +35,8 @@ interface BaseMapperInterface
 
     public function removeByIds(array $ids): int;
 
+    public function removeByQuery(array $where): int|bool|null;
+
     public function page(int $current, int $pageSize, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface;
 
     public function queryPage(array $where = [], int $current = 1, int $pageSize = 115, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface;
