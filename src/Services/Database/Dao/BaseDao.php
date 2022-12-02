@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Rickytech\Library\Services\Database\Dao;
 
@@ -10,6 +11,7 @@ use Hyperf\Utils\Arr;
 use Hyperf\Utils\Collection;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Rickytech\Library\Filter\QueryFilter;
 use Rickytech\Library\Services\Models\BaseMapperInterface;
 use Rickytech\Library\Traits\TreeList;
 
@@ -116,14 +118,15 @@ abstract class BaseDao implements BaseMapperInterface
         return $this->getModel()::where($where)->update($data);
     }
 
-    public function removeById(object|string $id, string $segment = 'id'): void
+    public function removeById(object|string $id, string $segment = 'id'): Model|null
     {
         try {
             if (is_object($id)) {
                 $id = $id->$segment;
             }
-            $model = $this->getModel()::query()->find($id);
+            $model = $this->getModel()::query()->findOrFail($id);
             $model->delete();
+            return $model;
         } catch (\Exception $e) {
             throw new \RuntimeException($e->getMessage());
         }
@@ -136,22 +139,23 @@ abstract class BaseDao implements BaseMapperInterface
 
     public function page(int $current, int $pageSize, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface
     {
-        return $this->getModel()::select($fields)->paginate(perPage: $pageSize, page: $current);
+        return $this->getModel()::select($fields)->paginate(perPage: $pageSize ?? 15, page: $current ?? 1);
     }
 
-    public function queryPage(array $where = [], int $current = 1, int $pageSize = 115, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface
+    public function queryPage(array $where = [], int $current = 1, int $pageSize = 15, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface
     {
         return $this->getModel()::query()->where($where)->select($fields)->paginate(perPage: $pageSize ?? 15, page: $current ?? 1);
     }
 
-    public function queryPageByFilter(array $where = [], object|null $filters = null, int $current = 1, int $pageSize = 15, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface
+    public function queryPageByFilter(array $where = [], QueryFilter|null $filters = null, int $current = 1, int $pageSize = 15, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface
     {
         return $this->getModel()::query()
             ->where($where)
             ->when(is_object($filters), function ($query) use ($filters) {
                 return $query->filter($filters);
             })
-            ->select($fields)->paginate(perPage: $pageSize ?? 15, page: $current ?? 1);
+            ->select($fields)
+            ->paginate(perPage: $pageSize ?? 15, page: $current ?? 1);
     }
 
     public function count(string $column = '*', array $where = []): int

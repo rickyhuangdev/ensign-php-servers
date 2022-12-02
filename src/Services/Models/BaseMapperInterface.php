@@ -4,6 +4,7 @@ namespace Rickytech\Library\Services\Models;
 
 use Hyperf\Database\Model\Model;
 use Hyperf\Utils\Collection;
+use Rickytech\Library\Filter\QueryFilter;
 
 interface BaseMapperInterface
 {
@@ -30,7 +31,7 @@ interface BaseMapperInterface
 
     public function updateBatchByIds(array $where, array $data): int;
 
-    public function removeById(object|string $id, string $segment = 'id'): void;
+    public function removeById(object|string $id, string $segment = 'id'): Model|null;
 
     public function removeByIds(array $ids): int;
 
@@ -38,7 +39,7 @@ interface BaseMapperInterface
 
     public function queryPage(array $where = [], int $current = 1, int $pageSize = 115, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface;
 
-    public function queryPageByFilter(array $where = [], object|null $filters = null, int $current = 1, int $pageSize = 15, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface;
+    public function queryPageByFilter(array $where = [], QueryFilter|null $filters = null, int $current = 1, int $pageSize = 15, array $fields = ['*']): \Hyperf\Contract\LengthAwarePaginatorInterface;
 
     public function count(string $column = '*', array $where = []): int;
 
