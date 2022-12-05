@@ -5,6 +5,7 @@ namespace Rickytech\Library\Services\Database\Dao;
 
 use Carbon\Carbon;
 use Hyperf\Database\Model\Model;
+use Hyperf\Database\Model\ModelNotFoundException;
 use Hyperf\Snowflake\IdGeneratorInterface;
 use Hyperf\Utils\ApplicationContext;
 use Hyperf\Utils\Arr;
@@ -110,8 +111,8 @@ abstract class BaseDao implements BaseMapperInterface
             $model = $this->getModel()::query()->findOrFail($id);
             $model->update($data);
             return $model;
-        } catch (\Exception $e) {
-            throw new \RuntimeException($e->getMessage());
+        } catch (ModelNotFoundException $e) {
+            throw new \RuntimeException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -129,8 +130,8 @@ abstract class BaseDao implements BaseMapperInterface
             $model = $this->getModel()::query()->findOrFail($id);
             $model->delete();
             return $model;
-        } catch (\Exception $e) {
-            throw new \RuntimeException($e->getMessage());
+        } catch (ModelNotFoundException $e) {
+            throw new \RuntimeException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
