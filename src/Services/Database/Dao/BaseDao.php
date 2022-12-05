@@ -112,7 +112,7 @@ abstract class BaseDao implements BaseMapperInterface
             $model->update($data);
             return $model;
         } catch (ModelNotFoundException $e) {
-            throw new \RuntimeException($e->getMessage(), $e->getCode(), $e);
+            throw new \RuntimeException($e->getMessage(), 500);
         }
     }
 
@@ -131,7 +131,7 @@ abstract class BaseDao implements BaseMapperInterface
             $model->delete();
             return $model;
         } catch (ModelNotFoundException $e) {
-            throw new \RuntimeException($e->getMessage(), $e->getCode(), $e);
+            throw new \RuntimeException($e->getMessage(), 500);
         }
     }
 
