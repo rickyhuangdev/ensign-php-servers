@@ -2,7 +2,7 @@
 declare(strict_types=1);
 namespace Rickytech\Library\Services\Models;
 
-use Hyperf\Database\Model\Model;
+use Hyperf\DbConnection\Model\Model;
 
 class BaseModel extends Model
 {
