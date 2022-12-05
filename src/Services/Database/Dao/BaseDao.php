@@ -30,7 +30,7 @@ abstract class BaseDao implements BaseMapperInterface
     {
         return $this->getModel()::query()->when($where, function ($query) use ($where) {
             return $query->where($where);
-        })->select($fields)->all();
+        })->select($fields)->get();
     }
 
     public function listByIds(array $ids, array $field = ['*']): Collection|null
