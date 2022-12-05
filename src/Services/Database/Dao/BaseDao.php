@@ -5,7 +5,6 @@ namespace Rickytech\Library\Services\Database\Dao;
 
 use Carbon\Carbon;
 use Hyperf\Database\Model\Model;
-use Hyperf\Database\Model\ModelNotFoundException;
 use Hyperf\Snowflake\IdGeneratorInterface;
 use Hyperf\Utils\ApplicationContext;
 use Hyperf\Utils\Arr;
@@ -104,16 +103,14 @@ abstract class BaseDao implements BaseMapperInterface
 
     public function updateById(object|string $id, array $data, string $segment = 'id'): model|null
     {
-        try {
-            if (is_object($id)) {
-                $id = $id->$segment;
-            }
-            $model = $this->getModel()::query()->findOrFail($id);
-            $model->update($data);
-            return $model;
-        } catch (ModelNotFoundException $e) {
-            throw new \RuntimeException($e->getMessage(), 500);
+
+        if (is_object($id)) {
+            $id = $id->$segment;
         }
+        $model = $this->getModel()::query()->findOrFail($id);
+        $model->update($data);
+        return $model;
+
     }
 
     public function updateBatchByIds(array $where, array $data): int
@@ -123,16 +120,14 @@ abstract class BaseDao implements BaseMapperInterface
 
     public function removeById(object|string $id, string $segment = 'id'): Model|null
     {
-        try {
-            if (is_object($id)) {
-                $id = $id->$segment;
-            }
-            $model = $this->getModel()::query()->findOrFail($id);
-            $model->delete();
-            return $model;
-        } catch (ModelNotFoundException $e) {
-            throw new \RuntimeException($e->getMessage(), 500);
+
+        if (is_object($id)) {
+            $id = $id->$segment;
         }
+        $model = $this->getModel()::query()->findOrFail($id);
+        $model->delete();
+        return $model;
+
     }
 
     public function removeByIds(array $ids): int
