@@ -26,9 +26,11 @@ abstract class BaseDao implements BaseMapperInterface
         return make($this->setModel(), ['enableCache' => true]);
     }
 
-    public function list(): Collection|null
+    public function list(array $where, array $fields = ['*']): Collection|null
     {
-        return $this->getModel()::all();
+        return $this->getModel()::query()->when($where, function ($query) use ($where) {
+            return $query->where($where);
+        })->select($fields)->all();
     }
 
     public function listByIds(array $ids, array $field = ['*']): Collection|null

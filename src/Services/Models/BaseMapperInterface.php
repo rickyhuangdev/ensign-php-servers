@@ -9,7 +9,7 @@ use Rickytech\Library\Filter\QueryFilter;
 
 interface BaseMapperInterface
 {
-    public function list(): Collection|null;
+    public function list(array $where, array $fields = ['*']): Collection|null;
 
     public function listByIds(array $ids, array $field = ['*']): Collection|null;
 
