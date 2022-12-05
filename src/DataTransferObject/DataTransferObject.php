@@ -20,24 +20,24 @@ abstract class DataTransferObject
     protected array $onlyKeys = [];
 
 
-    /**
-     * @throws ValidationException
-     * @throws UnknownProperties
-     */
     public function __construct(...$args)
     {
-        if (is_array($args[0])) {
-            $args = $args[0];
+        try {
+            if (is_array($args[0])) {
+                $args = $args[0];
+            }
+            $class = new DataTransferObjectClass($this);
+            foreach ($class->getProperties() as $property) {
+                $property->setValue(Arr::get($args, $property->name, $property->getDefaultValue()));
+                $args = Arr::forget($args, $property->name);
+            }
+            if ($class->isStrict() && count($args)) {
+                throw UnknownProperties::new(static::class, array_keys($args));
+            }
+            $class->validate();
+        } catch (UnknownProperties|ValidationException $e) {
+            throw new \RuntimeException($e->getMessage(), $e->getCode());
         }
-        $class = new DataTransferObjectClass($this);
-        foreach ($class->getProperties() as $property) {
-            $property->setValue(Arr::get($args, $property->name, $property->getDefaultValue()));
-            $args = Arr::forget($args, $property->name);
-        }
-        if ($class->isStrict() && count($args)) {
-            throw UnknownProperties::new(static::class, array_keys($args));
-        }
-        $class->validate();
     }
 
     public static function arrayOf(array $arrayOfParameters): array
@@ -47,6 +47,7 @@ abstract class DataTransferObject
             $arrayOfParameters
         );
     }
+
     public function toArray(): array
     {
         if (count($this->onlyKeys)) {
@@ -88,6 +89,7 @@ abstract class DataTransferObject
     {
         return new static(...array_merge($this->toArray(), $args));
     }
+
     protected function parseArray(array $array): array
     {
         foreach ($array as $key => $value) {
@@ -97,7 +99,7 @@ abstract class DataTransferObject
                 continue;
             }
 
-            if (! is_array($value)) {
+            if (!is_array($value)) {
                 continue;
             }
 
