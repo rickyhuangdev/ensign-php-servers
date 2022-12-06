@@ -10,9 +10,11 @@ use Rickytech\Library\Filter\QueryFilter;
 
 interface BaseMapperInterface
 {
-    public function list(array $where, array $fields = ['*']): Collection|null;
+    public function getInstance(): Model;
 
-    public function listByIds(array $ids, array $field = ['*']): Collection|null;
+    public function list(array $where, array $fields = ['*']): Collection;
+
+    public function listByIds(array $ids, array $field = ['*']): Collection;
 
     public function getById(string $id, array $fields = ['*'], array $relations = []): Model|null;
 
