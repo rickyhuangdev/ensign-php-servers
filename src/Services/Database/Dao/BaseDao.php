@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Rickytech\Library\Services\Database\Dao;
 
 use Carbon\Carbon;
-use Hyperf\Database\Model\Model;
+use Hyperf\DbConnection\Model\Model;
 use Hyperf\Snowflake\IdGeneratorInterface;
 use Hyperf\Utils\ApplicationContext;
 use Hyperf\Utils\Arr;
@@ -69,7 +69,7 @@ abstract class BaseDao implements BaseMapperInterface
             ->first();
     }
 
-    public function getOneOrFail(string $id, $fields = ['*']): Model|null
+    public function getOneOrFail(string $id, $fields = ['*']):\Hyperf\Database\Model\Collection|\Hyperf\Database\Model\Model|static
     {
         return $this->getModel()::query()->select($fields)->findOrFail($id);
     }

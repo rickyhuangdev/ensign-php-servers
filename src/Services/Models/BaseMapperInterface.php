@@ -3,7 +3,8 @@ declare(strict_types=1);
 
 namespace Rickytech\Library\Services\Models;
 
-use Hyperf\Database\Model\Model;
+
+use Hyperf\DbConnection\Model\Model;
 use Hyperf\Utils\Collection;
 use Rickytech\Library\Filter\QueryFilter;
 
@@ -19,7 +20,7 @@ interface BaseMapperInterface
 
     public function getOne(array $where, $fields = ['*'], array $relations = []);
 
-    public function getOneOrFail(string $id, $fields = ['*']): Model|null;
+    public function getOneOrFail(string $id, $fields = ['*']): \Hyperf\Database\Model\Collection|\Hyperf\Database\Model\Model|static;
 
     public function save(array $data): Model;
 
