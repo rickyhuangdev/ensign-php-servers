@@ -42,7 +42,7 @@ interface BaseMapperInterface
 
     public function queryPage(array $where = [], ?int $current = 1, ?int $pageSize = 115, array $fields = ['*'], array $relations = []): \Hyperf\Contract\LengthAwarePaginatorInterface;
 
-    public function queryPageByFilter(array $where = [], QueryFilter|null $filters = null, ?int $current = 1, ?int $pageSize = 15, array $fields = ['*'], array $relations = []): \Hyperf\Contract\LengthAwarePaginatorInterface;
+    public function queryPageByFilter(array $where = [], QueryFilter|null $filters = null, ?int $current = 1, ?int $pageSize = 15, array $fields = ['*'], array $relations = [], array $withCount = []): \Hyperf\Contract\LengthAwarePaginatorInterface;
 
     public function count(string $column = '*', array $where = []): int;
 }

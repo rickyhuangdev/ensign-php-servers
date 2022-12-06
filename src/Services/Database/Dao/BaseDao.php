@@ -69,7 +69,7 @@ abstract class BaseDao implements BaseMapperInterface
             ->first();
     }
 
-    public function getOneOrFail(string $id, $fields = ['*']):\Hyperf\Database\Model\Collection|\Hyperf\Database\Model\Model|static
+    public function getOneOrFail(string $id, $fields = ['*']): \Hyperf\Database\Model\Collection|\Hyperf\Database\Model\Model|static
     {
         return $this->getModel()::query()->select($fields)->findOrFail($id);
     }
@@ -159,12 +159,15 @@ abstract class BaseDao implements BaseMapperInterface
             ->select($fields)->paginate(perPage: $pageSize ?? 15, page: $current ?? 1);
     }
 
-    public function queryPageByFilter(array $where = [], QueryFilter|null $filters = null, ?int $current = 1, ?int $pageSize = 15, array $fields = ['*'], array $relations = []): \Hyperf\Contract\LengthAwarePaginatorInterface
+    public function queryPageByFilter(array $where = [], QueryFilter|null $filters = null, ?int $current = 1, ?int $pageSize = 15, array $fields = ['*'], array $relations = [], array $withCount = []): \Hyperf\Contract\LengthAwarePaginatorInterface
     {
         return $this->getModel()::query()
             ->where($where)
             ->when($relations, function ($query) use ($relations) {
                 $query->with($relations);
+            })
+            ->when($withCount, function ($query) use ($withCount) {
+                $query->withCount($withCount);
             })
             ->when(is_object($filters), function ($query) use ($filters) {
                 return $query->filter($filters);
