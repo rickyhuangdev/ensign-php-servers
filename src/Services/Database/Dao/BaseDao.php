@@ -5,7 +5,6 @@ namespace Rickytech\Library\Services\Database\Dao;
 
 use Carbon\Carbon;
 use Hyperf\DbConnection\Model\Model;
-use Hyperf\DbConnection\Model\Model;
 use Hyperf\Snowflake\IdGeneratorInterface;
 use Hyperf\Utils\ApplicationContext;
 use Hyperf\Utils\Arr;
