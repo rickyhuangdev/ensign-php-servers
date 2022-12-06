@@ -14,5 +14,6 @@ class Cacheable extends AbstractAnnotation
         public ?string $value = null,
         public ?int    $ttl = null,
     ) {
+        parent::__construct($this->prefix,$this->value,$this->ttl);
     }
 }
