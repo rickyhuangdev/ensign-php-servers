@@ -49,40 +49,40 @@ class Result
         if ($data instanceof Collection || $data instanceof Model || $data instanceof UtilCollection) {
             $data = $data->toArray();
         }
-        if ($data instanceof LengthAwarePaginator || $data instanceof ResourceCollection) {
+        if ($data instanceof LengthAwarePaginator || $data instanceof ResourceCollection || $data instanceof Paginator) {
             return [
                 'success' => true,
                 'code' => $code,
                 'message' => $message,
                 'data' => [
-                    'data' => $data->getCollection(),
-                    'total' => $data->total(),
+                    'data' => $data->getCollection()??$data->items(),
+                    'total' => $data->total()??$data->count(),
                     'current' => $data->currentPage(),
                     'pageSize' => $data->perPage(),
-                    'totalPage' => $data->lastPage(),
+                    'totalPage' => $data->lastPage()??0,
                 ],
-                'errorMessage' => !$success ? $message : null,
-                'errorCode' => !$success ? $code : null,
+//                'errorMessage' => !$success ? $message : null,
+//                'errorCode' => !$success ? $code : null,
 
             ];
         }
-        if ($data instanceof Paginator) {
-            return [
-                'success' => true,
-                'code' => $code,
-                'message' => $message,
-                'data' => [
-                    'data' => $data->items(),
-                    'total' => $data->count(),
-                    'current' => $data->currentPage(),
-                    'pageSize' => $data->perPage(),
-                    'totalPage' => $data->count(),
-                ],
-                'errorMessage' => !$success ? $message : null,
-                'errorCode' => !$success ? $code : null,
-
-            ];
-        }
+//        if ($data instanceof Paginator) {
+//            return [
+//                'success' => true,
+//                'code' => $code,
+//                'message' => $message,
+//                'data' => [
+//                    'data' => $data->items(),
+//                    'total' => $data->count(),
+//                    'current' => $data->currentPage(),
+//                    'pageSize' => $data->perPage(),
+//                    'totalPage' => $data->count(),
+//                ],
+////                'errorMessage' => !$success ? $message : null,
+////                'errorCode' => !$success ? $code : null,
+//
+//            ];
+//        }
         return [
             'success' => $success,
             'code' => $code,
