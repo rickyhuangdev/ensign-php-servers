@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace Rickytech\Library\Response;
 
 use Hyperf\Paginator\LengthAwarePaginator;
@@ -53,11 +54,13 @@ class Result
                 'success' => true,
                 'code' => $code,
                 'message' => $message,
-                'data' => $data->getCollection(),
-                'total' => $data->total(),
-                'current' => $data->currentPage(),
-                'pageSize' => $data->perPage(),
-                'totalPage' => $data->lastPage(),
+                'data' => [
+                    'data' => $data->getCollection(),
+                    'total' => $data->total(),
+                    'current' => $data->currentPage(),
+                    'pageSize' => $data->perPage(),
+                    'totalPage' => $data->lastPage(),
+                ],
                 'errorMessage' => !$success ? $message : null,
                 'errorCode' => !$success ? $code : null,
 
@@ -68,11 +71,13 @@ class Result
                 'success' => true,
                 'code' => $code,
                 'message' => $message,
-                'data' => $data->items(),
-                'total' => $data->count(),
-                'current' => $data->currentPage(),
-                'pageSize' => $data->perPage(),
-                'totalPage' => $data->count(),
+                'data' => [
+                    'data' => $data->items(),
+                    'total' => $data->count(),
+                    'current' => $data->currentPage(),
+                    'pageSize' => $data->perPage(),
+                    'totalPage' => $data->count(),
+                ],
                 'errorMessage' => !$success ? $message : null,
                 'errorCode' => !$success ? $code : null,
 
@@ -83,8 +88,8 @@ class Result
             'code' => $code,
             'message' => $message,
             'data' => $data,
-            'errorMessage' => !$success ? $message : null,
-            'errorCode' => !$success ? $code : null,
+//            'errorMessage' => !$success ? $message : null,
+//            'errorCode' => !$success ? $code : null,
         ];
     }
 }
