@@ -18,7 +18,7 @@ interface BaseMapperInterface
 
     public function getById(string $id, array $fields = ['*'], array $relations = []): Model|null;
 
-    public function getByIds(array $ids, array $fields = ['*'], array $relations = []): Model|null;
+    public function getByIds(array $ids, array $where = [], array $fields = ['*'], array $relations = []): Model|null;
 
     public function getOne(array $where, $fields = ['*'], array $relations = []);
 

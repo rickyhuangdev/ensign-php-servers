@@ -53,9 +53,12 @@ abstract class BaseDao implements BaseMapperInterface
             ->first();
     }
 
-    public function getByIds(array $ids, array $fields = ['*'], array $relations = []): Model|null
+    public function getByIds(array $ids, array $where = [], array $fields = ['*'], array $relations = []): Model|null
     {
         return $this->getModel()::query()
+            ->when($where, function ($query) use ($where) {
+                return $query->where($where);
+            })
             ->when($relations, function ($query) use ($relations) {
                 return $query->with($relations);
             })
