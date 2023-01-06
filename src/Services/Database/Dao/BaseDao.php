@@ -148,7 +148,7 @@ abstract class BaseDao implements BaseMapperInterface
         return $this->getModel()::query()->where($where)->delete();
     }
 
-    public function page(?int $current, ?int $pageSize, array $fields = ['*'], array $relations = []): \Hyperf\Contract\LengthAwarePaginatorInterface
+    public function page( $current,$pageSize, array $fields = ['*'], array $relations = []): \Hyperf\Contract\LengthAwarePaginatorInterface
     {
         return $this->getModel()::select($fields)
             ->when($relations, function ($query) use ($relations) {
@@ -157,7 +157,7 @@ abstract class BaseDao implements BaseMapperInterface
             ->paginate(perPage: $pageSize ?? 15, page: $current ?? 1);
     }
 
-    public function queryPage(array $where = [], ?int $current = 1, ?int $pageSize = 15, array $fields = ['*'], array $relations = []): \Hyperf\Contract\LengthAwarePaginatorInterface
+    public function queryPage(array $where = [],  $current = 1, $pageSize = 15, array $fields = ['*'], array $relations = []): \Hyperf\Contract\LengthAwarePaginatorInterface
     {
         return $this->getModel()::query()
             ->where($where)

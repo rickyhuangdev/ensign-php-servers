@@ -46,50 +46,27 @@ class Result
 
     private static function result(bool $success, mixed $data, string|null $message, int $code = 200): array
     {
-        if ($data instanceof Collection || $data instanceof Model || $data instanceof UtilCollection) {
-            $data = $data->toArray();
-        }
-        if ($data instanceof LengthAwarePaginator || $data instanceof ResourceCollection || $data instanceof Paginator) {
-            return [
-                'success' => true,
-                'code' => $code,
-                'message' => $message,
-                'data' => [
-                    'data' => $data->getCollection()??$data->items(),
-                    'total' => $data->total()??$data->count(),
-                    'current' => $data->currentPage(),
-                    'pageSize' => $data->perPage(),
-                    'totalPage' => $data->lastPage()??0,
-                ],
-//                'errorMessage' => !$success ? $message : null,
-//                'errorCode' => !$success ? $code : null,
-
-            ];
-        }
-//        if ($data instanceof Paginator) {
-//            return [
-//                'success' => true,
-//                'code' => $code,
-//                'message' => $message,
-//                'data' => [
-//                    'data' => $data->items(),
-//                    'total' => $data->count(),
-//                    'current' => $data->currentPage(),
-//                    'pageSize' => $data->perPage(),
-//                    'totalPage' => $data->count(),
-//                ],
-////                'errorMessage' => !$success ? $message : null,
-////                'errorCode' => !$success ? $code : null,
-//
-//            ];
-//        }
-        return [
+        $response = [
             'success' => $success,
             'code' => $code,
-            'message' => $message,
-            'data' => $data,
-//            'errorMessage' => !$success ? $message : null,
-//            'errorCode' => !$success ? $code : null,
+            'message' => $message
         ];
+        $responseData = null;
+        if ($data instanceof Collection || $data instanceof Model || $data instanceof UtilCollection) {
+            $responseData = $data->toArray();
+        }
+        if ($data instanceof LengthAwarePaginator || $data instanceof ResourceCollection || $data instanceof Paginator) {
+            $responseData = [
+                'data' => $data->getCollection() ?? $data->items(),
+                'total' => $data->total() ?? $data->count(),
+                'current' => $data->currentPage(),
+                'pageSize' => $data->perPage(),
+                'totalPage' => $data->lastPage() ?? 0,
+            ];
+        }
+        if ($data) {
+            return [...$response, 'data' => $responseData];
+        }
+        return $response;
     }
 }
