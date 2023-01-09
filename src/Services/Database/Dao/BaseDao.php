@@ -11,6 +11,7 @@ use Hyperf\Utils\Arr;
 use Hyperf\Utils\Collection;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Rickytech\Library\Exceptions\DataNotFoundException;
 use Rickytech\Library\Filter\QueryFilter;
 use Rickytech\Library\Services\Models\BaseMapperInterface;
 use Rickytech\Library\Traits\TreeList;
@@ -115,7 +116,10 @@ abstract class BaseDao implements BaseMapperInterface
         if (is_object($id)) {
             $id = $id->$segment;
         }
-        $model = $this->getModel()::query()->findOrFail($id);
+        $model = $this->getModel()::query()->find($id);
+        if (!$model) {
+            throw new DataNotFoundException();
+        }
         $model->update($data);
         return $model;
 
@@ -148,7 +152,7 @@ abstract class BaseDao implements BaseMapperInterface
         return $this->getModel()::query()->where($where)->delete();
     }
 
-    public function page( $current,$pageSize, array $fields = ['*'], array $relations = []): \Hyperf\Contract\LengthAwarePaginatorInterface
+    public function page($current, $pageSize, array $fields = ['*'], array $relations = []): \Hyperf\Contract\LengthAwarePaginatorInterface
     {
         return $this->getModel()::select($fields)
             ->when($relations, function ($query) use ($relations) {
@@ -157,7 +161,7 @@ abstract class BaseDao implements BaseMapperInterface
             ->paginate(perPage: $pageSize ?? 15, page: $current ?? 1);
     }
 
-    public function queryPage(array $where = [],  $current = 1, $pageSize = 15, array $fields = ['*'], array $relations = []): \Hyperf\Contract\LengthAwarePaginatorInterface
+    public function queryPage(array $where = [], $current = 1, $pageSize = 15, array $fields = ['*'], array $relations = []): \Hyperf\Contract\LengthAwarePaginatorInterface
     {
         return $this->getModel()::query()
             ->where($where)
