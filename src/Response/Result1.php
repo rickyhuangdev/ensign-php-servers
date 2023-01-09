@@ -57,11 +57,11 @@ class Result1
             'success' => true,
             'code' => 200,
             'data' => [
-                'items' => $data->getCollection() ?? $data->items(),
-                'total' => $data->total() ?? $data->count(),
-                'current' => $data->currentPage(),
-                'pageSize' => $data->perPage(),
-                'totalPage' => $data->lastPage() ?? 0,
+                'items' => $data['data'],
+                'total' => $data['total'],
+                'current' => $data['current_page'],
+                'pageSize' => $data['per_page'],
+                'totalPage' => $data['last_page'],
             ],
         ]);
     }
