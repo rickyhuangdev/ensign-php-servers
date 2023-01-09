@@ -44,19 +44,25 @@ class Result1
 //        if ($data instanceof Collection || $data instanceof Model || $data instanceof UtilCollection) {
 //            $data = $data->toArray();
 //        }
-        if ($data instanceof LengthAwarePaginator || $data instanceof ResourceCollection || $data instanceof Paginator) {
-            $data = [
+//        if ($data instanceof LengthAwarePaginator || $data instanceof ResourceCollection || $data instanceof Paginator) {
+//            $data = [
+//                'items' => $data->getCollection() ?? $data->items(),
+//                'total' => $data->total() ?? $data->count(),
+//                'current' => $data->currentPage(),
+//                'pageSize' => $data->perPage(),
+//                'totalPage' => $data->lastPage() ?? 0,
+//            ];
+//        }
+        return $this->response->json([
+            'success' => true,
+            'code' => 200,
+            'data' => [
                 'items' => $data->getCollection() ?? $data->items(),
                 'total' => $data->total() ?? $data->count(),
                 'current' => $data->currentPage(),
                 'pageSize' => $data->perPage(),
                 'totalPage' => $data->lastPage() ?? 0,
-            ];
-        }
-        return $this->response->json([
-            'success' => true,
-            'code' => 200,
-            'data' => $data,
+            ],
         ]);
     }
 }
