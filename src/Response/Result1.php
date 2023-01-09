@@ -53,17 +53,6 @@ class Result1
                 'totalPage' => $data->lastPage() ?? 0,
             ];
         }
-
-        if ($data instanceof LengthAwarePaginator || $data instanceof ResourceCollection || $data instanceof Paginator) {
-            $data = [
-                'items' => $data->getCollection() ?? $data->items(),
-                'total' => $data->total() ?? $data->count(),
-                'current' => $data->currentPage(),
-                'pageSize' => $data->perPage(),
-                'totalPage' => $data->lastPage() ?? 0,
-            ];
-        }
-
         return $this->response->json([
             'success' => true,
             'code' => 200,
