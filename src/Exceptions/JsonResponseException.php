@@ -38,6 +38,7 @@ class JsonResponseException extends ExceptionHandler
             }
             if($throwable instanceof ModelNotFoundException){
                 $responseContents['error']['errorMessage'] = "Data not found";
+                $responseContents['error']['code'] = $responseContents['error']['data']['code'] = 404;
             }else{
                 $responseContents['error']['errorMessage'] = $responseContents['error']['data']['message'] ?? $throwable->getMessage();
             }
