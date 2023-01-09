@@ -9,7 +9,7 @@ use Hyperf\Utils\Collection as UtilCollection;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 
-class Result
+class Result1
 {
     const SUCCESS = 200001;
     const CREATED_SUCCESS = 200002;
@@ -37,32 +37,35 @@ class Result
         $this->response = $container->get(ResponseInterface::class);
     }
 
-    public static function success(mixed $data = null, string|null $message = '', string|int $code = self::SUCCESS)
+    public function success(mixed $data = null, string|null $message = '', string|int $code = self::SUCCESS)
     {
-        return self::result(true, $data, $message, $code);
+        return $this->result(true, $data, $message, $code);
     }
 
-    public static function fail(int $code,string $message = '')
+    public function fail(int $code, string $message = '')
     {
-        
+        return $this->response->json([
+            'code' => $code,
+            'message' => $message,
+        ]);
     }
 
-    public static function created(mixed $data, string|null $message = '', string|int $code = self::CREATED_SUCCESS)
+    public function created(mixed $data, string|null $message = '', string|int $code = self::CREATED_SUCCESS)
     {
-        return self::result(true, $data, $message, $code);
+        return $this->result(true, $data, $message, $code);
     }
 
-    public static function updated(mixed $data, string|null $message = '', string|int $code = self::UPDATED_SUCCESS)
+    public function updated(mixed $data, string|null $message = '', string|int $code = self::UPDATED_SUCCESS)
     {
-        return self::result(true, $data, $message, $code);
+        return $this->result(true, $data, $message, $code);
     }
 
-    public static function deleted(mixed $data, string|null $message = '', string|int $code = self::DELETE_SUCCESS)
+    public function deleted(mixed $data, string|null $message = '', string|int $code = self::DELETE_SUCCESS)
     {
-        return self::result(true, $data, $message, $code);
+        return $this->result(true, $data, $message, $code);
     }
 
-    private static function result(bool $success, mixed $data, string|null $message, int $code = 200): array
+    private function result(bool $success, mixed $data, string|null $message, int $code = 200): array
     {
         $response = [
             'success' => $success,
@@ -83,8 +86,8 @@ class Result
             ];
         }
         if ($data) {
-            return [...$response, 'data' => $responseData];
+            return $this->response->json([...$response, 'data' => $responseData]);
         }
-        return $response;
+        return $this->response->json($response);;
     }
 }
