@@ -15,5 +15,8 @@ use Throwable;
 
 class BusinessException extends ServerException
 {
-
+    public function __construct(string $message = "", int $code = 500, ?Throwable $previous = null)
+    {
+        parent::__construct($message, $code, $previous);
+    }
 }
