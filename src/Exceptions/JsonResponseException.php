@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Rickytech\Library\Exceptions;
 
 use Hyperf\Contract\ConfigInterface;
+use Hyperf\Database\Exception\QueryException;
 use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\HttpMessage\Stream\SwooleStream;
 use Hyperf\Utils\ApplicationContext;
@@ -30,8 +31,12 @@ class JsonResponseException extends ExceptionHandler
                     break;
                 }
             }
-            $responseContents['error']['errorMessage'] = $responseContents['error']['data']['message'] ?? $throwable->getMessage();
             $responseContents['error']['code'] = $responseContents['error']['data']['code'];
+            if($throwable instanceof QueryException){
+                $responseContents['error']['code'] = $responseContents['error']['data']['code'] = 500;
+            }
+            $responseContents['error']['errorMessage'] = $responseContents['error']['data']['message'] ?? $throwable->getMessage();
+
 //            $responseContents['error']['message'] .= " - {$config->get('app_name')}:{$port}";
         }
         $data = json_encode($responseContents, JSON_UNESCAPED_UNICODE);
