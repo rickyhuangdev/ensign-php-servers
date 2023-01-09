@@ -70,6 +70,7 @@ class Result1
         $response = [
             'success' => $success,
             'code' => $code,
+            'data' => $data,
             'message' => $message
         ];
         $responseData = null;
@@ -88,6 +89,6 @@ class Result1
         if ($data) {
             return $this->response->json([...$response, 'data' => $responseData]);
         }
-        return $this->response->json($response);;
+        return $this->response->json($response);
     }
 }
