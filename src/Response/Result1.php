@@ -18,10 +18,6 @@ class Result1
     const SESSION_EXPIRED = 400003;
     const FORBIDDEN = 400004;
     const SERVER_ERROR = 500000;
-    const MSG_SUCCESS = 'success';
-    const MSG_CREATED_SUCCESS = 'Created successfully';
-    const MSG_UPDATED_SUCCESS = 'Updated successfully';
-    const MSG_DELETE_SUCCESS = 'Deleted successfully';
     private ContainerInterface $container;
     /**
      * @var mixed|ResponseInterface
@@ -46,50 +42,32 @@ class Result1
     public function fail(int $code, string $message = '')
     {
         return $this->response->json([
-            'code' => $code,
-            'message' => $message,
+            'success' => false,
+            'errorCode' => $code,
+            'errorMsg' => $message,
         ]);
     }
 
-    public function created(mixed $data, string|null $message = '', string|int $code = self::CREATED_SUCCESS)
+    private function pageResult(bool $success, mixed $data, int $code = 200)
     {
-        return $this->result(true, $data, $message, $code);
-    }
 
-    public function updated(mixed $data, string|null $message = '', string|int $code = self::UPDATED_SUCCESS)
-    {
-        return $this->result(true, $data, $message, $code);
-    }
+        if ($data instanceof Collection || $data instanceof Model || $data instanceof UtilCollection) {
+            $data = $data->toArray();
+        }
+        if ($data instanceof LengthAwarePaginator || $data instanceof ResourceCollection || $data instanceof Paginator) {
+            $data = [
+                'items' => $data->getCollection() ?? $data->items(),
+                'total' => $data->total() ?? $data->count(),
+                'current' => $data->currentPage(),
+                'pageSize' => $data->perPage(),
+                'totalPage' => $data->lastPage() ?? 0,
+            ];
+        }
 
-    public function deleted(mixed $data, string|null $message = '', string|int $code = self::DELETE_SUCCESS)
-    {
-        return $this->result(true, $data, $message, $code);
-    }
-
-    private function result(bool $success, mixed $data, string|null $message, int $code = 200)
-    {
-        $response = [
+        return $this->response->json([
             'success' => $success,
             'code' => $code,
             'data' => $data,
-            'message' => $message
-        ];
-//        $responseData = null;
-//        if ($data instanceof Collection || $data instanceof Model || $data instanceof UtilCollection) {
-//            $responseData = $data->toArray();
-//        }
-//        if ($data instanceof LengthAwarePaginator || $data instanceof ResourceCollection || $data instanceof Paginator) {
-//            $responseData = [
-//                'items' => $data->getCollection() ?? $data->items(),
-//                'total' => $data->total() ?? $data->count(),
-//                'current' => $data->currentPage(),
-//                'pageSize' => $data->perPage(),
-//                'totalPage' => $data->lastPage() ?? 0,
-//            ];
-//        }
-//        if ($data) {
-//            return $this->response->json([...$response, 'data' => $responseData]);
-//        }
-        return $this->response->json($response);
+        ]);
     }
 }
