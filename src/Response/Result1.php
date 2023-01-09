@@ -65,7 +65,7 @@ class Result1
         return $this->result(true, $data, $message, $code);
     }
 
-    private function result(bool $success, mixed $data, string|null $message, int $code = 200): array
+    private function result(bool $success, mixed $data, string|null $message, int $code = 200)
     {
         $response = [
             'success' => $success,
