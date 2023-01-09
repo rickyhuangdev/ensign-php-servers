@@ -2,9 +2,10 @@
 
 namespace Rickytech\Library\Exceptions;
 
+use Hyperf\Server\Exception\ServerException;
 use Throwable;
 
-class FormRequestException extends \Exception
+class FormRequestException extends ServerException
 {
     public function __construct(string $message = '', int $code = 422, ?Throwable $previous = null)
     {
