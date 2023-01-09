@@ -41,9 +41,9 @@ class Result1
 
     public function pageResult(mixed $data)
     {
-        if ($data instanceof Collection || $data instanceof Model || $data instanceof UtilCollection) {
-            $data = $data->toArray();
-        }
+//        if ($data instanceof Collection || $data instanceof Model || $data instanceof UtilCollection) {
+//            $data = $data->toArray();
+//        }
         if ($data instanceof LengthAwarePaginator || $data instanceof ResourceCollection || $data instanceof Paginator) {
             $data = [
                 'items' => $data->getCollection() ?? $data->items(),
