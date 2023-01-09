@@ -6,6 +6,7 @@ namespace Rickytech\Library\Exceptions;
 
 use Hyperf\Contract\ConfigInterface;
 use Hyperf\Database\Exception\QueryException;
+use Hyperf\Database\Model\ModelNotFoundException;
 use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\HttpMessage\Stream\SwooleStream;
 use Hyperf\Utils\ApplicationContext;
@@ -35,7 +36,11 @@ class JsonResponseException extends ExceptionHandler
             if($throwable instanceof QueryException){
                 $responseContents['error']['code'] = $responseContents['error']['data']['code'] = 500;
             }
-            $responseContents['error']['errorMessage'] = $responseContents['error']['data']['message'] ?? $throwable->getMessage();
+            if($throwable instanceof ModelNotFoundException){
+                $responseContents['error']['errorMessage'] = "Data not found";
+            }else{
+                $responseContents['error']['errorMessage'] = $responseContents['error']['data']['message'] ?? $throwable->getMessage();
+            }
 
 //            $responseContents['error']['message'] .= " - {$config->get('app_name')}:{$port}";
         }
