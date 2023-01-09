@@ -48,7 +48,7 @@ class Result1
         ]);
     }
 
-    private function pageResult(bool $success, mixed $data, int $code = 200)
+    public function pageResult(bool $success, mixed $data, int $code = 200)
     {
 
         if ($data instanceof Collection || $data instanceof Model || $data instanceof UtilCollection) {
