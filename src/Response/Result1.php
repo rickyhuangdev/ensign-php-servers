@@ -9,15 +9,6 @@ use Psr\Container\ContainerInterface;
 class Result1
 {
     const SUCCESS = 200001;
-    const CREATED_SUCCESS = 200002;
-    const UPDATED_SUCCESS = 200003;
-    const DELETE_SUCCESS = 200004;
-    const REQUEST_FAILED = 400000;
-    const VALIDATE_FAILED = 400001;
-    const DATA_NOTFOUND = 400002;
-    const SESSION_EXPIRED = 400003;
-    const FORBIDDEN = 400004;
-    const SERVER_ERROR = 500000;
     private ContainerInterface $container;
     /**
      * @var mixed|ResponseInterface
@@ -48,9 +39,8 @@ class Result1
         ]);
     }
 
-    public function pageResult(bool $success, mixed $data, int $code = 200)
+    public function pageResult(mixed $data)
     {
-
         if ($data instanceof Collection || $data instanceof Model || $data instanceof UtilCollection) {
             $data = $data->toArray();
         }
@@ -64,9 +54,19 @@ class Result1
             ];
         }
 
+        if ($data instanceof LengthAwarePaginator || $data instanceof ResourceCollection || $data instanceof Paginator) {
+            $data = [
+                'items' => $data->getCollection() ?? $data->items(),
+                'total' => $data->total() ?? $data->count(),
+                'current' => $data->currentPage(),
+                'pageSize' => $data->perPage(),
+                'totalPage' => $data->lastPage() ?? 0,
+            ];
+        }
+
         return $this->response->json([
-            'success' => $success,
-            'code' => $code,
+            'success' => true,
+            'code' => 200,
             'data' => $data,
         ]);
     }
