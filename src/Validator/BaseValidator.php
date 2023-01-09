@@ -16,6 +16,6 @@ class BaseValidator
 
     protected function formRequestError()
     {
-        throw new FormRequestException($this->validator->errors()->first(), Result::VALIDATE_FAILED);
+        throw new FormRequestException($this->validator->errors()->first());
     }
 }
