@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Rickytech\Library\DataTransferObject\Attributes;
 
 use Attribute;
@@ -24,11 +26,11 @@ class DefaultCast
     {
         $type = $property->getType();
 
-        /** @var \ReflectionNamedType[]|null $types */
+        /** @var ReflectionNamedType[]|null $types */
         $types = match ($type::class) {
             ReflectionNamedType::class => [$type],
             ReflectionUnionType::class => $type->getTypes(),
-            default => null,
+            default                    => null,
         };
 
         if (!$types) {

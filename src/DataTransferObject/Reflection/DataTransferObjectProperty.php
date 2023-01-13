@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Rickytech\Library\DataTransferObject\Reflection;
 
 use JetBrains\PhpStorm\Immutable;
@@ -11,18 +13,20 @@ use ReflectionType;
 use ReflectionUnionType;
 use Rickytech\Library\DataTransferObject\Attributes\CastWith;
 use Rickytech\Library\DataTransferObject\Attributes\DefaultCast;
+use Rickytech\Library\DataTransferObject\Attributes\MapFrom;
 use Rickytech\Library\DataTransferObject\Caster;
 use Rickytech\Library\DataTransferObject\DataTransferObject;
-use Rickytech\Library\DataTransferObject\MapFrom;
 use Rickytech\Library\DataTransferObject\Validator;
 
 class DataTransferObjectProperty
 {
     #[Immutable]
     public string $name;
+
     private DataTransferObject $dataTransferObject;
 
     private ReflectionProperty $reflectionProperty;
+
     private ?Caster $caster;
 
     public function __construct(
@@ -37,7 +41,7 @@ class DataTransferObjectProperty
         $this->caster = $this->resolveCaster();
     }
 
-    private function resolveMappedProperty()
+    private function resolveMappedProperty(): string|int
     {
         $attributes = $this->reflectionProperty->getAttributes(MapFrom::class);
 
@@ -48,7 +52,7 @@ class DataTransferObjectProperty
         return $attributes[0]->newInstance()->name;
     }
 
-    private function resolveCaster()
+    private function resolveCaster(): ?Caster
     {
         $attributes = $this->reflectionProperty->getAttributes(CastWith::class);
 
@@ -60,6 +64,7 @@ class DataTransferObjectProperty
             return $this->resolveCasterFromDefaults();
         }
 
+        /** @var CastWith $attribute */
         $attribute = $attributes[0]->newInstance();
 
         return new $attribute->casterClass(
@@ -93,6 +98,32 @@ class DataTransferObjectProperty
         return [];
     }
 
+    /**
+     * @return ReflectionNamedType[]
+     */
+    private function extractTypes(): array
+    {
+        $type = $this->reflectionProperty->getType();
+
+        if (!$type) {
+            return [];
+        }
+
+        return match ($type::class) {
+            ReflectionNamedType::class => [$type],
+            ReflectionUnionType::class => $type->getTypes(),
+        };
+    }
+
+    private function resolveTypeName(ReflectionType $type): string
+    {
+        return match ($type->getName()) {
+            'self'   => $this->dataTransferObject::class,
+            'parent' => get_parent_class($this->dataTransferObject),
+            default  => $type->getName(),
+        };
+    }
+
     private function resolveCasterFromDefaults(): ?Caster
     {
         $defaultCastAttributes = [];
@@ -110,6 +141,7 @@ class DataTransferObjectProperty
         }
 
         foreach ($defaultCastAttributes as $defaultCastAttribute) {
+            /** @var DefaultCast $defaultCast */
             $defaultCast = $defaultCastAttribute->newInstance();
 
             if ($defaultCast->accepts($this->reflectionProperty)) {
@@ -118,29 +150,6 @@ class DataTransferObjectProperty
         }
 
         return null;
-    }
-
-    private function resolveTypeName(ReflectionType $type): string
-    {
-        return match ($type->getName()) {
-            'self' => $this->dataTransferObject::class,
-            'parent' => get_parent_class($this->dataTransferObject),
-            default => $type->getName(),
-        };
-    }
-
-    private function extractTypes(): array
-    {
-        $type = $this->reflectionProperty->getType();
-
-        if (!$type) {
-            return [];
-        }
-
-        return match ($type::class) {
-            ReflectionNamedType::class => [$type],
-            ReflectionUnionType::class => $type->getTypes(),
-        };
     }
 
     public function setValue(mixed $value): void
@@ -152,11 +161,10 @@ class DataTransferObjectProperty
         $this->reflectionProperty->setValue($this->dataTransferObject, $value);
     }
 
-    public function getDefaultValue(): mixed
-    {
-        return $this->reflectionProperty->getDefaultValue();
-    }
-
+    /**
+     * Created by rickyhuang
+     * @return array
+     */
     public function getValidators(): array
     {
         $attributes = $this->reflectionProperty->getAttributes(
@@ -173,5 +181,10 @@ class DataTransferObjectProperty
     public function getValue(): mixed
     {
         return $this->reflectionProperty->getValue($this->dataTransferObject);
+    }
+
+    public function getDefaultValue(): mixed
+    {
+        return $this->reflectionProperty->getDefaultValue();
     }
 }

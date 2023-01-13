@@ -48,6 +48,15 @@ abstract class DataTransferObject
         );
     }
 
+    /**
+     * @throws ValidationException
+     * @throws UnknownProperties
+     */
+    public function clone(...$args): static
+    {
+        return new static(...array_merge($this->toArray(), $args));
+    }
+
     public function toArray(): array
     {
         if (count($this->onlyKeys)) {
@@ -79,15 +88,6 @@ abstract class DataTransferObject
         }
 
         return $data;
-    }
-
-    /**
-     * @throws ValidationException
-     * @throws UnknownProperties
-     */
-    public function clone(...$args): static
-    {
-        return new static(...array_merge($this->toArray(), $args));
     }
 
     protected function parseArray(array $array): array

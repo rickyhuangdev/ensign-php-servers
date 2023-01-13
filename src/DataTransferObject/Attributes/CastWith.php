@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Rickytech\Library\DataTransferObject\Attributes;
 
 use Attribute;
@@ -15,7 +17,7 @@ class CastWith
         public string $casterClass,
         mixed ...$args
     ) {
-        if (! is_subclass_of($this->casterClass, Caster::class)) {
+        if (!is_subclass_of($this->casterClass, Caster::class)) {
             throw new InvalidCasterClass($this->casterClass);
         }
 

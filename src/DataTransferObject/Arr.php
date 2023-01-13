@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Rickytech\Library\DataTransferObject;
 
 use ArrayAccess;
@@ -8,7 +10,7 @@ class Arr
 {
     public static function only($array, $keys): array
     {
-        return array_intersect_key($array, array_flip((array) $keys));
+        return array_intersect_key($array, array_flip((array)$keys));
     }
 
     public static function except($array, $keys): array
@@ -18,7 +20,7 @@ class Arr
 
     public static function forget($array, $keys): array
     {
-        $keys = (array) $keys;
+        $keys = (array)$keys;
 
         if (count($keys) === 0) {
             return $array;
@@ -33,7 +35,7 @@ class Arr
             }
 
             // Check if the key is using dot-notation
-            if (! str_contains($key, '.')) {
+            if (!str_contains($key, '.')) {
                 continue;
             }
 
@@ -53,9 +55,23 @@ class Arr
         return $array;
     }
 
+    public static function exists($array, $key): bool
+    {
+        if ($array instanceof ArrayAccess) {
+            return $array->offsetExists($key);
+        }
+
+        return array_key_exists($key, $array);
+    }
+
+    public static function accessible($value)
+    {
+        return is_array($value) || $value instanceof ArrayAccess;
+    }
+
     public static function get($array, $key, $default = null)
     {
-        if (! static::accessible($array)) {
+        if (!static::accessible($array)) {
             return $default;
         }
 
@@ -80,19 +96,5 @@ class Arr
         }
 
         return $array;
-    }
-
-    public static function accessible($value)
-    {
-        return is_array($value) || $value instanceof ArrayAccess;
-    }
-
-    public static function exists($array, $key): bool
-    {
-        if ($array instanceof ArrayAccess) {
-            return $array->offsetExists($key);
-        }
-
-        return array_key_exists($key, $array);
     }
 }
