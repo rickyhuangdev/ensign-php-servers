@@ -7,9 +7,9 @@ namespace Rickytech\Library\DataTransferObject;
 use ReflectionClass;
 use ReflectionProperty;
 use Rickytech\Library\DataTransferObject\Attributes\CastWith;
+use Rickytech\Library\DataTransferObject\Attributes\MapTo;
 use Rickytech\Library\DataTransferObject\Caster\DataTransferObjectCaster;
 use Rickytech\Library\DataTransferObject\Exceptions\UnknownProperties;
-use Rickytech\Library\DataTransferObject\Exceptions\ValidationException;
 use Rickytech\Library\DataTransferObject\Reflection\DataTransferObjectClass;
 
 #[CastWith(DataTransferObjectCaster::class)]
@@ -19,53 +19,33 @@ abstract class DataTransferObject
 
     protected array $onlyKeys = [];
 
-
     public function __construct(...$args)
     {
-        try {
-            if (is_array($args[0])) {
-                $args = $args[0];
-            }
-            $class = new DataTransferObjectClass($this);
-            foreach ($class->getProperties() as $property) {
-                $property->setValue(Arr::get($args, $property->name, $property->getDefaultValue()));
-                $args = Arr::forget($args, $property->name);
-            }
-            if ($class->isStrict() && count($args)) {
-                throw UnknownProperties::new(static::class, array_keys($args));
-            }
-            $class->validate();
-        } catch (UnknownProperties|ValidationException $e) {
-            throw new \RuntimeException($e->getMessage(), $e->getCode());
+        if (is_array($args[0] ?? null)) {
+            $args = $args[0];
         }
+
+        $class = new DataTransferObjectClass($this);
+
+        foreach ($class->getProperties() as $property) {
+            $property->setValue(Arr::get($args, $property->name, $property->getDefaultValue()));
+
+            $args = Arr::forget($args, $property->name);
+        }
+
+        if ($class->isStrict() && count($args)) {
+            throw UnknownProperties::new(static::class, array_keys($args));
+        }
+
+        $class->validate();
     }
 
     public static function arrayOf(array $arrayOfParameters): array
     {
         return array_map(
-            fn (mixed $parameters) => new static($parameters),
+            static fn (mixed $parameters) => new static($parameters),
             $arrayOfParameters
         );
-    }
-
-    /**
-     * @throws ValidationException
-     * @throws UnknownProperties
-     */
-    public function clone(...$args): static
-    {
-        return new static(...array_merge($this->toArray(), $args));
-    }
-
-    public function toArray(): array
-    {
-        if (count($this->onlyKeys)) {
-            $array = Arr::only($this->all(), $this->onlyKeys);
-        } else {
-            $array = Arr::except($this->all(), $this->exceptKeys);
-        }
-
-        return $this->parseArray($array);
     }
 
     public function all(): array
@@ -90,10 +70,46 @@ abstract class DataTransferObject
         return $data;
     }
 
+    public function only(string ...$keys): static
+    {
+        $dataTransferObject = clone $this;
+
+        $dataTransferObject->onlyKeys = [...$this->onlyKeys, ...$keys];
+
+        return $dataTransferObject;
+    }
+
+    public function except(string ...$keys): static
+    {
+        $dataTransferObject = clone $this;
+
+        $dataTransferObject->exceptKeys = [...$this->exceptKeys, ...$keys];
+
+        return $dataTransferObject;
+    }
+
+    public function clone(...$args): static
+    {
+        return new static(...array_merge($this->toArray(), $args));
+    }
+
+    public function toArray(): array
+    {
+        if (count($this->onlyKeys)) {
+            $array = Arr::only($this->all(), $this->onlyKeys);
+        } else {
+            $array = Arr::except($this->all(), $this->exceptKeys);
+        }
+
+        $array = $this->parseArray($array);
+
+        return $array;
+    }
+
     protected function parseArray(array $array): array
     {
         foreach ($array as $key => $value) {
-            if ($value instanceof DataTransferObject) {
+            if ($value instanceof self) {
                 $array[$key] = $value->toArray();
 
                 continue;
