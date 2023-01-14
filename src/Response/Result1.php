@@ -50,9 +50,9 @@ class Result1
             'code'    => 200,
             'data'    => [
                 'items'     => $data['data'],
-                'total'     => $data['total'],
                 'current'   => $data['current_page'],
                 'pageSize'  => $data['per_page'],
+                'total'     => $data['total'],
                 'totalPage' => $data['last_page'],
             ],
         ]);
