@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace Rickytech\Library\Exceptions;
 
 use Hyperf\Contract\ConfigInterface;
-use Hyperf\Database\Exception\QueryException;
-use Hyperf\Database\Model\ModelNotFoundException;
 use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\HttpMessage\Stream\SwooleStream;
 use Hyperf\Utils\ApplicationContext;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
-use Rickytech\Library\Exceptions\ModelNotDefinedException;
 
 class JsonResponseException extends ExceptionHandler
 {
@@ -20,30 +17,18 @@ class JsonResponseException extends ExceptionHandler
     {
         $responseContents = $response->getBody()->getContents();
         $responseContents = json_decode($responseContents, true);
-        var_dump($throwable->getLine(), $throwable->getMessage(), $throwable->getTraceAsString(), $throwable->getCode());
+        var_dump($responseContents);
         if (!empty($responseContents['error'])) {
-            var_dump($responseContents);
             $port = null;
             $config = ApplicationContext::getContainer()->get(ConfigInterface::class);
             $servers = $config->get('server.servers');
             foreach ($servers as $k => $server) {
-                if ($server['name'] == 'jsonrpc-http') {
+                if ($server['name'] === 'jsonrpc-http') {
                     $port = $server['port'];
                     break;
                 }
             }
-            $responseContents['error']['code'] = $responseContents['error']['data']['code'];
-            if($throwable instanceof QueryException){
-                $responseContents['error']['code'] = $responseContents['error']['data']['code'] = 500;
-            }
-            if($throwable instanceof ModelNotFoundException){
-                $responseContents['error']['errorMessage'] = "Data not found";
-                $responseContents['error']['code'] = $responseContents['error']['data']['code'] = 404;
-            }else{
-                $responseContents['error']['errorMessage'] = $responseContents['error']['data']['message'] ?? $throwable->getMessage();
-            }
-
-//            $responseContents['error']['message'] .= " - {$config->get('app_name')}:{$port}";
+            $responseContents['error']['code'] = $responseContents['error']['data']['code'] ?? $responseContents['error']['code'];
         }
         $data = json_encode($responseContents, JSON_UNESCAPED_UNICODE);
         return $response->withStatus(200)->withBody(new SwooleStream($data));
@@ -63,11 +48,11 @@ class JsonResponseException extends ExceptionHandler
     {
         return [
             "jsonrpc" => "2.0",
-            "id" => "1",
-            "error" => [
-                "code" => $code,
+            "id"      => "1",
+            "error"   => [
+                "code"    => $code,
                 "message" => $message,
-                "data" => null
+                "data"    => null
             ]
         ];
     }
