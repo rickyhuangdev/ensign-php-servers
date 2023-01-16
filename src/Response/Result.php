@@ -34,7 +34,7 @@ class Result
             $data = [
                 'items'     => $data->items(),
                 'current'   => $data->currentPage(),
-                'pageSize'  => $data->per_page(),
+                'pageSize'  => $data->perPage(),
                 'total'     => $data->total(),
                 'totalPage' => $data->lastPage()
             ];
