@@ -30,6 +30,9 @@ class Result
 
     protected static function result($code, $message, $data)
     {
+        if (isset($data['data'])) {
+            $data = $data['data'];
+        }
         if ($data instanceof LengthAwarePaginator) {
             $data = [
                 'items'     => $data->items(),
