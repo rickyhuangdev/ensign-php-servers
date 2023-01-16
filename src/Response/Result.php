@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Rickytech\Library\Response;
 
-use Hyperf\Contract\LengthAwarePaginatorInterface;
-use Hyperf\Paginator\Paginator;
+use Hyperf\Paginator\LengthAwarePaginator;
 use Rickytech\Library\Constants\ResponseCode;
 
 class Result
@@ -31,13 +30,13 @@ class Result
 
     protected static function result($code, $message, $data)
     {
-        if ($data instanceof Paginator || $data instanceof LengthAwarePaginatorInterface) {
+        if ($data instanceof LengthAwarePaginator) {
             $data = [
-                'items'     => $data['data'],
-                'current'   => $data['current_page'],
-                'pageSize'  => $data['per_page'],
-                'total'     => $data['total'],
-                'totalPage' => $data['last_page'],
+                'items'     => $data->items(),
+                'current'   => $data->currentPage(),
+                'pageSize'  => $data->per_page(),
+                'total'     => $data->total(),
+                'totalPage' => $data->lastPage()
             ];
         }
         return [
