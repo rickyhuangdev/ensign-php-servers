@@ -13,7 +13,8 @@ class CacheEvict extends AbstractAnnotation
     public function __construct(
         public ?string $prefix = null,
         public ?string $value = null,
-        public ?int    $ttl = null,
-    ) {
-    }
+        public bool $all = false,
+        public string $group = 'default',
+        public bool $collect = false
+    ) {}
 }

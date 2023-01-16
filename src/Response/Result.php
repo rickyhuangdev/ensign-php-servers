@@ -1,90 +1,50 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Rickytech\Library\Response;
 
-use Hyperf\Paginator\LengthAwarePaginator;
+use Hyperf\Contract\LengthAwarePaginatorInterface;
 use Hyperf\Paginator\Paginator;
-use Hyperf\Utils\Collection as UtilCollection;
-use Psr\Container\ContainerInterface;
-use Psr\Http\Message\ResponseInterface;
+use Rickytech\Library\Constants\ResponseCode;
 
 class Result
 {
-    const SUCCESS = 200001;
-    const CREATED_SUCCESS = 200002;
-    const UPDATED_SUCCESS = 200003;
-    const DELETE_SUCCESS = 200004;
-    const REQUEST_FAILED = 400000;
-    const VALIDATE_FAILED = 400001;
-    const DATA_NOTFOUND = 400002;
-    const SESSION_EXPIRED = 400003;
-    const FORBIDDEN = 400004;
-    const SERVER_ERROR = 500000;
-    const MSG_SUCCESS = 'success';
-    const MSG_CREATED_SUCCESS = 'Created successfully';
-    const MSG_UPDATED_SUCCESS = 'Updated successfully';
-    const MSG_DELETE_SUCCESS = 'Deleted successfully';
-    private ContainerInterface $container;
-    /**
-     * @var mixed|ResponseInterface
-     */
-    private mixed $response;
-
-    public function __construct(ContainerInterface $container)
+    public static function success($data = [])
     {
-        $this->container = $container;
-        $this->response = $container->get(ResponseInterface::class);
+        return static::result(ResponseCode::SUCCESS, ResponseCode::getMessage(ResponseCode::SUCCESS), $data);
     }
 
-    public static function success(mixed $data = null, string|null $message = '', string|int $code = self::SUCCESS)
+    public static function error($message = '', $code = ResponseCode::ERROR, $data = [])
     {
-        return self::result(true, $data, $message, $code);
-    }
-
-    public static function fail(int $code,string $message = '')
-    {
-        
-    }
-
-    public static function created(mixed $data, string|null $message = '', string|int $code = self::CREATED_SUCCESS)
-    {
-        return self::result(true, $data, $message, $code);
-    }
-
-    public static function updated(mixed $data, string|null $message = '', string|int $code = self::UPDATED_SUCCESS)
-    {
-        return self::result(true, $data, $message, $code);
-    }
-
-    public static function deleted(mixed $data, string|null $message = '', string|int $code = self::DELETE_SUCCESS)
-    {
-        return self::result(true, $data, $message, $code);
-    }
-
-    private static function result(bool $success, mixed $data, string|null $message, int $code = 200): array
-    {
-        $response = [
-            'success' => $success,
-            'code' => $code,
-            'message' => $message
-        ];
-        $responseData = null;
-        if ($data instanceof Collection || $data instanceof Model || $data instanceof UtilCollection) {
-            $responseData = $data->toArray();
-        }
-        if ($data instanceof LengthAwarePaginator || $data instanceof ResourceCollection || $data instanceof Paginator) {
-            $responseData = [
-                'items' => $data->getCollection() ?? $data->items(),
-                'total' => $data->total() ?? $data->count(),
-                'current' => $data->currentPage(),
-                'pageSize' => $data->perPage(),
-                'totalPage' => $data->lastPage() ?? 0,
+        if (empty($message)) {
+            return static::result($code, ResponseCode::getMessage($code), $data);
+        } else {
+//            return static::result($code, $message, $data);
+            return [
+                'success'   => false,
+                'errorCode' => $code,
+                'errorMsg'  => $message,
             ];
         }
-        if ($data) {
-            return [...$response, 'data' => $responseData];
+    }
+
+    protected static function result($code, $message, $data)
+    {
+        if ($data instanceof Paginator || $data instanceof LengthAwarePaginatorInterface) {
+            $data = [
+                'items'     => $data['data'],
+                'current'   => $data['current_page'],
+                'pageSize'  => $data['per_page'],
+                'total'     => $data['total'],
+                'totalPage' => $data['last_page'],
+            ];
         }
-        return $response;
+        return [
+            'success' => true,
+            'code'    => $code,
+            'message' => $message,
+            'data'    => $data,
+        ];
     }
 }
