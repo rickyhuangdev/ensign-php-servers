@@ -28,7 +28,11 @@ class JsonResponseException extends ExceptionHandler
                     break;
                 }
             }
-            $responseContents['error']['code'] = $responseContents['error']['data']['code'] ?? $responseContents['error']['code'];
+            if ($responseContents['error']['data']['code'] === 0) {
+                $responseContents['error']['code'] = 500;
+            } elseif ($responseContents['error']['data']['code'] > 0) {
+                $responseContents['error']['code'] = $responseContents['error']['data']['code'];
+            }
         }
         $data = json_encode($responseContents, JSON_UNESCAPED_UNICODE);
         return $response->withStatus(200)->withBody(new SwooleStream($data));
