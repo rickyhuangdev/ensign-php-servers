@@ -35,7 +35,7 @@ class JsonResponseException extends ExceptionHandler
             }
         }
         $data = json_encode($responseContents, JSON_UNESCAPED_UNICODE);
-        return $response->$response->withAddedHeader('Content-Type',
+        return $response->withAddedHeader('Content-Type',
             ' application/json; charset=UTF-8')->withStatus(200)->withBody(new SwooleStream($data));
     }
 
