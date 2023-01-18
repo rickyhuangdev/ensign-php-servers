@@ -96,4 +96,12 @@ class StringHelper
 
         return $t;
     }
+
+    public static function replaceChars(
+        string $string2Replace,
+        string $replacement = ',',
+        string $pattern = "/(\n)|(\s)|(\t)|(\')|(')|(，)/"
+    ): string {
+        return preg_replace($pattern, $replacement, $string2Replace);
+    }
 }
