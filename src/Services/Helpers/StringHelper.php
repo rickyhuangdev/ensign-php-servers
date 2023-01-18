@@ -1,5 +1,7 @@
 <?php
+
 declare(strict_types=1);
+
 namespace Rickytech\Library\Services\Helpers;
 
 use Hyperf\Utils\Str;
@@ -16,7 +18,7 @@ class StringHelper
                 foreach ($matches as $search) {
                     $k = str_replace(['#{', '}'], '', $search);
 
-                    $value = Str::replaceFirst($search, (string) data_get($arguments, $k), $value);
+                    $value = Str::replaceFirst($search, (string)data_get($arguments, $k), $value);
                 }
             }
         } else {
@@ -34,5 +36,59 @@ class StringHelper
         preg_match_all('/\#\{[\w\.]+\}/', $value, $matches);
 
         return $matches[0] ?? [];
+    }
+
+    public static function removeSpecialCharacter(string $string): array|string
+    {
+        $t = $string;
+
+        $specChars = array(
+            ' '     => '-',
+            '!'     => '',
+            '"'     => '',
+            '#'     => '',
+            '$'     => '',
+            '%'     => '',
+            '&'     => '',
+            '\''    => '',
+            '('     => '',
+            ')'     => '',
+            '*'     => '',
+            '+'     => '',
+            ','     => '',
+            '₹'     => '',
+            '.'     => '',
+            '/-'    => '',
+            ':'     => '',
+            ';'     => '',
+            '<'     => '',
+            '='     => '',
+            '>'     => '',
+            '?'     => '',
+            '@'     => '',
+            '['     => '',
+            '\\'    => '',
+            ']'     => '',
+            '^'     => '',
+            '_'     => '',
+            '`'     => '',
+            '{'     => '',
+            '|'     => '',
+            '}'     => '',
+            '~'     => '',
+            '-----' => '-',
+            '----'  => '-',
+            '---'   => '-',
+            '/'     => '',
+            '--'    => '-',
+            '/_'    => '-',
+
+        );
+
+        foreach ($specChars as $k => $v) {
+            $t = str_replace($k, $v, $t);
+        }
+
+        return $t;
     }
 }
