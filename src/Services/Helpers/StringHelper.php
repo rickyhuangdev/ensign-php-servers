@@ -38,7 +38,7 @@ class StringHelper
         return $matches[0] ?? [];
     }
 
-    public static function removeSpecialCharacter(string $string): array|string
+    public static function removeSpecialCharacter(string $string, string $ignoreChar = ','): array|string
     {
         $t = $string;
 
@@ -76,6 +76,7 @@ class StringHelper
             '|'     => '',
             '}'     => '',
             '~'     => '',
+            '，'     => '',
             '-----' => '-',
             '----'  => '-',
             '---'   => '-',
@@ -83,9 +84,13 @@ class StringHelper
             '--'    => '-',
             '/_'    => '-',
 
+
         );
 
         foreach ($specChars as $k => $v) {
+            if ($k === $ignoreChar) {
+                continue;
+            }
             $t = str_replace($k, $v, $t);
         }
 
