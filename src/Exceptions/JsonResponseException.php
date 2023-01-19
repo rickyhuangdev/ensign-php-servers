@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Rickytech\Library\Exceptions;
 
 use Hyperf\Contract\ConfigInterface;
+use Hyperf\Database\Exception\QueryException;
 use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\HttpMessage\Stream\SwooleStream;
 use Hyperf\Utils\ApplicationContext;
@@ -33,6 +34,10 @@ class JsonResponseException extends ExceptionHandler
             } elseif ($responseContents['error']['data']['code'] > 0) {
                 $responseContents['error']['code'] = $responseContents['error']['data']['code'];
             }
+            if ($throwable instanceof QueryException && env('APP_ENV') !== 'dev') {
+                $responseContents['error']['message'] = 'Server Error';
+            }
+            $responseContents['error']['code'] = 500;
         }
         $data = json_encode($responseContents, JSON_UNESCAPED_UNICODE);
         return $response->withAddedHeader('Content-Type',
