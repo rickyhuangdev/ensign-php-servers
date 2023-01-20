@@ -9,9 +9,10 @@ use Rickytech\Library\Constants\ResponseCode;
 
 class Result
 {
-    public static function success($data = [])
+    public static function success($data = [], string $message = '')
     {
-        return static::result(ResponseCode::SUCCESS, ResponseCode::getMessage(ResponseCode::SUCCESS), $data);
+        return static::result(ResponseCode::SUCCESS, $message ?? ResponseCode::getMessage(ResponseCode::SUCCESS),
+            $data);
     }
 
     public static function error($message = '', $code = ResponseCode::ERROR, $data = [])
