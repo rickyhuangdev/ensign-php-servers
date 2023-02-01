@@ -11,33 +11,17 @@ namespace Rickytech\Library\Services\Database\MongoDB;
 
 class MongoClient
 {
-    private static $instance = null;
     protected string $database;
     protected string $collection;
     protected array $config;
     protected \MongoDB\Client $client;
 
-    private function __construct()
+    public function __construct()
     {
         if (!env("MONGODB_CONFIG")) {
             throw new \RuntimeException("Please provide a config file");
         }
         $this->client = new \MongoDB\Client(env("MONGODB_CONFIG"));
-    }
-
-    public function __wakeup(): never
-    {
-        throw new \RuntimeException("Cannot unserialize mongo client", 500);
-    }
-
-    private function __clone(): void {}
-
-    public static function getInstance(): self
-    {
-        if (!self::$instance instanceof self) {
-            self::$instance = new self();
-        }
-        return self::$instance;
     }
 
     public function insertOne(array $document): \MongoDB\InsertOneResult
@@ -63,6 +47,11 @@ class MongoClient
     public function deleteMany(array $filter): \MongoDB\DeleteResult
     {
         return $this->getCollection()->deleteMany();
+    }
+
+    public function findOneById(string $id): object|array|null
+    {
+        return $this->getCollection()->findOne(["_id" => new MongoDB\BSON\ObjectId($id)]);
     }
 
     public function findOne(array $where): object|array|null
