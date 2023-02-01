@@ -40,7 +40,8 @@
         "illuminate/support": "^9.47",
         "hyperf/redis": "3.0.*",
         "larapack/dd": "^1.1",
-        "symfony/uid": "^6.2"
+        "symfony/uid": "^6.2",
+        "mongodb/mongodb": "^1.15"
     },
     "require-dev": {
         "roave/security-advisories": "dev-latest",
