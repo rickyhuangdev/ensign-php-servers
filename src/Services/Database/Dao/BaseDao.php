@@ -1,9 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Rickytech\Library\Services\Database\Dao;
 
 use Carbon\Carbon;
+use Hyperf\Database\Schema\Schema;
 use Hyperf\DbConnection\Model\Model;
 use Hyperf\Snowflake\IdGeneratorInterface;
 use Hyperf\Utils\ApplicationContext;
@@ -78,8 +80,10 @@ abstract class BaseDao implements BaseMapperInterface
             ->first();
     }
 
-    public function getOneOrFail(string $id, $fields = ['*']): \Hyperf\Database\Model\Collection|\Hyperf\Database\Model\Model|static
-    {
+    public function getOneOrFail(
+        string $id,
+        $fields = ['*']
+    ): \Hyperf\Database\Model\Collection|\Hyperf\Database\Model\Model|static {
         return $this->getModel()::query()->select($fields)->findOrFail($id);
     }
 
@@ -112,7 +116,6 @@ abstract class BaseDao implements BaseMapperInterface
 
     public function updateById(object|string $id, array $data, string $segment = 'id'): model|null
     {
-
         if (is_object($id)) {
             $id = $id->$segment;
         }
@@ -122,7 +125,6 @@ abstract class BaseDao implements BaseMapperInterface
         }
         $model->update($data);
         return $model;
-
     }
 
     public function updateBatchByIds(array $where, array $data): int
@@ -132,14 +134,12 @@ abstract class BaseDao implements BaseMapperInterface
 
     public function removeById(object|string $id, string $segment = 'id'): Model|null
     {
-
         if (is_object($id)) {
             $id = $id->$segment;
         }
         $model = $this->getModel()::query()->findOrFail($id);
         $model->delete();
         return $model;
-
     }
 
     public function removeByIds(array $ids): int
@@ -152,8 +152,12 @@ abstract class BaseDao implements BaseMapperInterface
         return $this->getModel()::query()->where($where)->delete();
     }
 
-    public function page($current, $pageSize, array $fields = ['*'], array $relations = []): \Hyperf\Contract\LengthAwarePaginatorInterface
-    {
+    public function page(
+        $current,
+        $pageSize,
+        array $fields = ['*'],
+        array $relations = []
+    ): \Hyperf\Contract\LengthAwarePaginatorInterface {
         return $this->getModel()::select($fields)
             ->when($relations, function ($query) use ($relations) {
                 $query->with($relations);
@@ -161,8 +165,13 @@ abstract class BaseDao implements BaseMapperInterface
             ->paginate(perPage: $pageSize ?? 15, page: $current ?? 1);
     }
 
-    public function queryPage(array $where = [], $current = 1, $pageSize = 15, array $fields = ['*'], array $relations = []): \Hyperf\Contract\LengthAwarePaginatorInterface
-    {
+    public function queryPage(
+        array $where = [],
+        $current = 1,
+        $pageSize = 15,
+        array $fields = ['*'],
+        array $relations = []
+    ): \Hyperf\Contract\LengthAwarePaginatorInterface {
         return $this->getModel()::query()
             ->where($where)
             ->when($relations, function ($query) use ($relations) {
@@ -171,8 +180,15 @@ abstract class BaseDao implements BaseMapperInterface
             ->select($fields)->paginate(perPage: $pageSize ?? 15, page: $current ?? 1);
     }
 
-    public function queryPageByFilter(array $where = [], QueryFilter|null $filters = null, ?int $current = 1, ?int $pageSize = 15, array $fields = ['*'], array $relations = [], array $withCount = []): \Hyperf\Contract\LengthAwarePaginatorInterface
-    {
+    public function queryPageByFilter(
+        array $where = [],
+        QueryFilter|null $filters = null,
+        ?int $current = 1,
+        ?int $pageSize = 15,
+        array $fields = ['*'],
+        array $relations = [],
+        array $withCount = []
+    ): \Hyperf\Contract\LengthAwarePaginatorInterface {
         return $this->getModel()::query()
             ->where($where)
             ->when($relations, function ($query) use ($relations) {
@@ -194,6 +210,11 @@ abstract class BaseDao implements BaseMapperInterface
             ->when($where, function ($query) use ($where) {
                 return $query->where($where);
             })->count($column);
+    }
+
+    public function getColumns(): array
+    {
+        return Schema::getColumnListing($this->getInstance()?->getTable());
     }
 
     private function getPrimaryKeyValue()
