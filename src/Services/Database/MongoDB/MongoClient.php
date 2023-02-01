@@ -11,7 +11,7 @@ namespace Rickytech\Library\Services\Database\MongoDB;
 
 class MongoClient
 {
-    private static MongoClient $instance;
+    private static $instance = null;
     protected string $database;
     protected string $collection;
     protected array $config;
@@ -32,7 +32,7 @@ class MongoClient
 
     private function __clone(): void {}
 
-    public static function getInstance(): MongoClient
+    public static function getInstance(): self
     {
         if (!self::$instance instanceof self) {
             self::$instance = new self();
