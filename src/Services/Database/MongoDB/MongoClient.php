@@ -39,6 +39,11 @@ class MongoClient
         return $this->getCollection()->updateOne(["_id" => new \MongoDB\BSON\ObjectId($id)], ['$set' => $documents]);
     }
 
+    public function updateOrCreate(array $filter, array $document): object|array|null
+    {
+        return $this->getCollection()->findOneAndUpdate($filter, ['$set' => $document], ['upsert' => true]);
+    }
+
     public function updateOne(array $filter, array $documents): \MongoDB\UpdateResult
     {
         return $this->getCollection()->updateOne($filter, ['$set' => $documents]);
