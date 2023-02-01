@@ -34,6 +34,11 @@ class MongoClient
         return $this->getCollection()->insertMany($documents);
     }
 
+    public function updateById(string $id, array $documents): \MongoDB\UpdateResult
+    {
+        return $this->getCollection()->updateOne(["_id" => new \MongoDB\BSON\ObjectId($id)], ['$set' => $documents]);
+    }
+
     public function updateOne(array $filter, array $documents): \MongoDB\UpdateResult
     {
         return $this->getCollection()->updateOne($filter, ['$set' => $documents]);
@@ -51,7 +56,7 @@ class MongoClient
 
     public function deleteMany(array $filter): \MongoDB\DeleteResult
     {
-        return $this->getCollection()->deleteMany();
+        return $this->getCollection()->deleteMany($filter);
     }
 
     public function findOneById(string $id): object|array|null
