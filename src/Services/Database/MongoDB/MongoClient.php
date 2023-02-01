@@ -36,7 +36,12 @@ class MongoClient
 
     public function updateOne(array $filter, array $documents): \MongoDB\UpdateResult
     {
-        return $this->getCollection()->updateOne($filter, $documents);
+        return $this->getCollection()->updateOne($filter, ['$set' => $documents]);
+    }
+
+    public function updateMany(array $filter, array $documents): \MongoDB\UpdateResult
+    {
+        return $this->getCollection()->updateOne($filter, ['$set' => $documents]);
     }
 
     public function deleteOne(array $filter, array $documents): \MongoDB\DeleteResult
