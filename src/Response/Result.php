@@ -36,11 +36,12 @@ class Result
         }
         if ($data instanceof LengthAwarePaginator) {
             $data = [
-                'items'     => $data->items(),
-                'current'   => $data->currentPage(),
-                'pageSize'  => $data->perPage(),
-                'total'     => $data->total(),
-                'totalPage' => $data->lastPage()
+                'columnFields' => $data->columnFields ?? [],
+                'items'        => $data->items(),
+                'current'      => $data->currentPage(),
+                'pageSize'     => $data->perPage(),
+                'total'        => $data->total(),
+                'totalPage'    => $data->lastPage()
             ];
         }
         return [
