@@ -51,7 +51,7 @@ class MongoClient
 
     public function findOneById(string $id): object|array|null
     {
-        return $this->getCollection()->findOne(["_id" => new MongoDB\BSON\ObjectId($id)]);
+        return $this->getCollection()->findOne(["_id" => new \MongoDB\BSON\ObjectId($id)]);
     }
 
     public function findOne(array $where): object|array|null
