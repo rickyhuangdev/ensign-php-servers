@@ -15,11 +15,11 @@ class PageResult
 
     public function __construct(
         public int $page,
-        public $pageSize,
+        public int $pageSize,
         public int $counts,
         public array $items,
         public array $columnFields
     ) {
-        $this->totalPages = $this->counts % $this->pageSize === 0 ? $this->counts / $this->pageSize : $this->counts / $this->pageSize + 1;
+        $this->totalPages = $this->counts % $this->pageSize === 0 ? (int)($this->counts / $this->pageSize) : (int) ($this->counts / $this->pageSize + 1);
     }
 }
