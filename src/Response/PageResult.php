@@ -11,15 +11,15 @@ namespace Rickytech\Library\Response;
 
 class PageResult
 {
-    public int $totalPages;
+    public int $totalPage;
 
     public function __construct(
-        public int $page,
+        public int $current,
         public int $pageSize,
-        public int $counts,
+        public int $total,
         public array $items,
         public array $columnFields
     ) {
-        $this->totalPages = $this->counts % $this->pageSize === 0 ? (int)($this->counts / $this->pageSize) : (int) ($this->counts / $this->pageSize + 1);
+        $this->totalPage = $this->total % $this->pageSize === 0 ? (int)($this->total / $this->pageSize) : (int) ($this->total / $this->pageSize + 1);
     }
 }
