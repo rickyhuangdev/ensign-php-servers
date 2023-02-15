@@ -43,6 +43,15 @@ class Result
                 'total'        => $data->total(),
                 'totalPage'    => $data->lastPage()
             ];
+        } elseif ($data instanceof PageResult) {
+            $data = [
+                'columnFields' => $data->columnFields ?? [],
+                'items'        => $data->items,
+                'current'      => $data->page,
+                'pageSize'     => $data->pageSize,
+                'total'        => $data->counts,
+                'totalPage'    => $data->totalPages
+            ];
         }
         return [
             'success' => true,
