@@ -17,9 +17,12 @@ class PageResult
         public int $current,
         public int $pageSize,
         public int $total,
-        public array $items,
+        public array|\MongoDB\Model\BSONDocument $items,
         public array $columnFields
     ) {
-        $this->totalPage = $this->total % $this->pageSize === 0 ? (int)($this->total / $this->pageSize) : (int) ($this->total / $this->pageSize + 1);
+        if ($items instanceof \MongoDB\Model\BSONDocument) {
+            $this->items = iterator_to_array($this->items);
+        }
+        $this->totalPage = $this->total % $this->pageSize === 0 ? (int)($this->total / $this->pageSize) : (int)($this->total / $this->pageSize + 1);
     }
 }
