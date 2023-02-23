@@ -1,13 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Rickytech\Library\Services\Database\Services;
 
 use Hyperf\DbConnection\Db;
-use Hyperf\Redis\Redis;
-use Hyperf\Utils\ApplicationContext;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
+use Rickytech\Library\Services\Cache\Redis\RedisHandler;
 
 abstract class BaseServices
 {
@@ -16,15 +14,11 @@ abstract class BaseServices
      */
     protected object $dao;
 
-    protected ?Redis $cache = null;
+    protected RedisHandler $cache;
 
     public function __construct()
     {
-        try {
-            $this->cache = ApplicationContext::getContainer()->get(\Hyperf\Redis\Redis::class);
-        } catch (NotFoundExceptionInterface|ContainerExceptionInterface $e) {
-            throw new \RuntimeException($e->getMessage(), 500);
-        }
+        $this->cache = make(RedisHandler::class);
     }
 
     public function transaction(callable $closure, bool $isTran = true)
