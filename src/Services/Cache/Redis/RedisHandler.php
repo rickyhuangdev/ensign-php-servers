@@ -9,18 +9,20 @@
 
 namespace Rickytech\Library\Services\Cache\Redis;
 
-use Hyperf\Redis\RedisFactory;
-use Hyperf\Utils\ApplicationContext;
-
 class RedisHandler
 {
-    private static ?\Hyperf\Redis\RedisProxy $redis = null;
+    private static $redis = null;
     private static int $expire = 3600; //默认存储时间（秒）
 
     public function __construct()
     {
-        self::$redis = ApplicationContext::getContainer()->get(RedisFactory::class)->get('default');
-        self::$redis->select((int)env("REDIS_DB"));
+        self::$redis = new \Predis\Client([
+            'scheme'   => 'tcp',
+            'host'     => env("REDIS_HOST"),
+            'port'     => env("REDIS_PORT"),
+            'database' => (int)env("REDIS_DB"),
+            'password' => env('REDIS_AUTH'),
+        ]);
     }
 
     public static function set(mixed $key, $value, int $expire = 3600): bool
@@ -34,7 +36,7 @@ class RedisHandler
                 $expire = (int)$expire ? $expire : self::$expire;
             }
         }
-        return self::$redis->set($key, $value,$expire);
+        return self::$redis->set($key, $value) && self::$redis->expire($key, $expire);
     }
 
     public static function expire(string $key, $expire = 0): bool
@@ -49,6 +51,9 @@ class RedisHandler
     public static function get(string $key)
     {
         $value = self::$redis->get($key);
+        if (is_object($value)) {
+            return $value;
+        }
         return is_numeric($value) ? $value : json_decode($value, true);
     }
 
