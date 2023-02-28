@@ -18,7 +18,7 @@ abstract class BaseServices
 
     public function __construct()
     {
-        $this->cache = make(RedisHandler::class);
+        $this->cache = RedisHandler::getInstance();
     }
 
     public function transaction(callable $closure, bool $isTran = true)
