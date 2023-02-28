@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Rickytech\Library\Services\Cache\Redis;
 
+use App\Attributes\Cache\Cacheable;
+use App\Attributes\Cache\CacheEvict;
+use App\Attributes\Cache\CacheEvictWithHash;
+use App\Attributes\Cache\CacheWithHashAspect;
 use Hyperf\Di\Annotation\AbstractAnnotation;
 use Hyperf\Di\Annotation\AnnotationCollector;
 use Hyperf\Utils\Str;
-use App\Attributes\Cache\Cacheable;
-use App\Attributes\Cache\CacheEvict;
-use App\Attributes\Cache\CacheWithHashAspect;
 
 class CacheAnnotation
 {
@@ -35,6 +36,15 @@ class CacheAnnotation
     {
         $annotation = $this->getAnnotation(CacheWithHash::class, $className, $method);
         $key = $this->getFormattedKey($annotation->prefix, $arguments, $annotation->value);
+        return [$key, $annotation->field];
+    }
+
+    public function getHashCacheEvictValue(string $className, string $method, mixed $arguments)
+    {
+        $annotation = $this->getAnnotation(CacheEvictWithHash::class, $className, $method);
+        $prefix = $annotation->prefix;
+        $key = $this->getFormattedKey($prefix, $arguments, $annotation->value);
+
         return [$key, $annotation->field];
     }
 
