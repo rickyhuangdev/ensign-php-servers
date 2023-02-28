@@ -25,7 +25,7 @@ class RedisHandler
     {
         try {
             self::$redis = ApplicationContext::getContainer()->get(RedisFactory::class)->get('default');
-            self::$redis->select((int)env('REDIS_HOST'));
+            self::$redis->select((int)env('REDIS_DB'));
         } catch (NotFoundExceptionInterface|ContainerExceptionInterface|\RedisException $e) {
             throw new \RuntimeException($e->getMessage());
         }
