@@ -245,9 +245,10 @@ class RedisHandler
         try {
             $value = self::$redis->hget($table, $column);
             if ($value) {
-                return is_numeric($value) ? $value : json_decode($value, true, 512, JSON_THROW_ON_ERROR);
+                return is_numeric($value) ? $value : is_array($value) ? json_decode($value, true, 512,
+                    JSON_THROW_ON_ERROR) : $value;
             }
-            return false;
+            return $value;
         } catch (\Exception $e) {
             throw new \RuntimeException($e->getMessage());
         }
