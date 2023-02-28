@@ -240,7 +240,8 @@ class RedisHandler
     public static function hGet(string $table, string $column)
     {
         try {
-            return self::$redis->hget($table, $column);
+            $value = self::$redis->hget($table, $column);
+            return is_numeric($value) ? $value : json_decode($value, true, 512, JSON_THROW_ON_ERROR)
         } catch (\Exception $e) {
             throw new \RuntimeException($e->getMessage());
         }
