@@ -16,5 +16,6 @@ class CacheEvict extends AbstractAnnotation
         public bool $all = false,
         public string $group = 'default',
         public bool $collect = false
-    ) {}
+    ) {
+    }
 }

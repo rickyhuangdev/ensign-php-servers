@@ -8,7 +8,6 @@ use Hyperf\Utils\Str;
 use Illuminate\Support\Arr;
 use Rickytech\Library\DataTransferObject\DataTransferObject;
 
-
 class CacheManager
 {
     private ?RedisHandler $cache;
@@ -108,6 +107,4 @@ class CacheManager
         }
         return $target;
     }
-
-
 }

@@ -59,8 +59,12 @@ if (!function_exists('isJSON')) {
      */
     function isJSON($string): bool
     {
-        return is_string($string) && is_array(json_decode($string, true, 512,
-                JSON_THROW_ON_ERROR)) && (json_last_error() === JSON_ERROR_NONE);
+        return is_string($string) && is_array(json_decode(
+            $string,
+            true,
+            512,
+            JSON_THROW_ON_ERROR
+        )) && (json_last_error() === JSON_ERROR_NONE);
     }
 }
 

@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Rickytech\Library\Services\Models;
 
-
 use Hyperf\DbConnection\Model\Model;
 use Hyperf\Utils\Collection;
 use Rickytech\Library\Filter\QueryFilter;

@@ -81,8 +81,10 @@ class MongoClient
 
     public function paginate(array $filter = [], $fields = [], int $page = 1, int $pageSize = 15, array $sort = [])
     {
-        return $this->getCollection()->find($filter,
-            $fields)->skip(($page - 1) * $pageSize)->limit($pageSize)->sort($sort);
+        return $this->getCollection()->find(
+            $filter,
+            $fields
+        )->skip(($page - 1) * $pageSize)->limit($pageSize)->sort($sort);
     }
 
     public function totalCount($where = []): int

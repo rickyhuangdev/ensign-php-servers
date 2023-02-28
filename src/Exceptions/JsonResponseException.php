@@ -40,8 +40,10 @@ class JsonResponseException extends ExceptionHandler
             $responseContents['error']['code'] = 500;
         }
         $data = json_encode($responseContents, JSON_UNESCAPED_UNICODE);
-        return $response->withAddedHeader('Content-Type',
-            ' application/json; charset=UTF-8')->withStatus(200)->withBody(new SwooleStream($data));
+        return $response->withAddedHeader(
+            'Content-Type',
+            ' application/json; charset=UTF-8'
+        )->withStatus(200)->withBody(new SwooleStream($data));
     }
 
     public function isValid(Throwable $throwable): bool
