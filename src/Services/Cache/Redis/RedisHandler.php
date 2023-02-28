@@ -9,8 +9,11 @@
 
 namespace Rickytech\Library\Services\Cache\Redis;
 
+use Closure;
 use Hyperf\Redis\RedisFactory;
 use Hyperf\Utils\ApplicationContext;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class RedisHandler
 {
@@ -20,11 +23,15 @@ class RedisHandler
 
     private function __construct()
     {
-        self::$redis = ApplicationContext::getContainer()->get(RedisFactory::class)->get('default');
-        self::$redis->select((int)env('REDIS_HOST'));
+        try {
+            self::$redis = ApplicationContext::getContainer()->get(RedisFactory::class)->get('default');
+            self::$redis->select((int)env('REDIS_HOST'));
+        } catch (NotFoundExceptionInterface|ContainerExceptionInterface|\RedisException $e) {
+            throw new \RuntimeException($e->getMessage());
+        }
     }
 
-    public static function getInstance()
+    public static function getInstance(): ?RedisHandler
     {
         if (is_null(self::$instance) || !self::$instance) {
             self::$instance = new self();
@@ -32,210 +39,295 @@ class RedisHandler
         return self::$instance;
     }
 
-    public function set(mixed $key, $value, int $expire = 3600): bool
+    public static function set(mixed $key, $value, int $expire = 3600): bool
     {
-        if (!$value) {
-            $expire = 120;
-            $value = json_encode($value, JSON_UNESCAPED_UNICODE);
-        } else {
-            if (is_int($key) || is_string($key)) {
-                $value = is_int($value) ? $value : json_encode($value, JSON_UNESCAPED_UNICODE);
-                $expire = (int)$expire ? $expire : self::$expire;
+        try {
+            if (!$value) {
+                $expire = 120;
+                $value = json_encode($value, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
+            } else {
+                if (is_int($key) || is_string($key)) {
+                    $value = is_int($value) ? $value : json_encode(
+                        $value,
+                        JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE
+                    );
+                    $expire = (int)$expire ? $expire : self::$expire;
+                }
             }
+            return self::$redis->set($key, $value) && self::$redis->expire($key, $expire);
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
         }
-        return self::$redis->set($key, $value) && self::$redis->expire($key, $expire);
     }
 
-    public function expire(string $key, $expire = 0): bool
+    public static function expire(string $key, $expire = 0): bool
     {
-        $expire = (int)$expire ? $expire : self::$expire;
-        if (self::$redis->expire($key, $expire)) {
-            return true;
+        try {
+            $expire = (int)$expire ? $expire : self::$expire;
+            if (self::$redis->expire($key, $expire)) {
+                return true;
+            }
+            return false;
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
         }
-        return false;
     }
 
-    public function get(string $key)
+    public static function get(string $key)
     {
-        $value = self::$redis->get($key);
-        if (is_object($value)) {
-            return $value;
+        try {
+            $value = self::$redis->get($key);
+            return is_numeric($value) ? $value : json_decode($value, true, 512, JSON_THROW_ON_ERROR);
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
         }
-        return is_numeric($value) ? $value : json_decode($value, true);
     }
 
     public static function del(string $key)
     {
-        return self::$redis->del($key);
+        try {
+            return self::$redis->del($key);
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
+        }
     }
 
-    public function substr(string $key, $start, $end = 0)
+    public static function substr(string $key, $start, $end = 0)
     {
-        $value = $this->get($key);
-        if ($value && is_string($value)) {
-            if ($end) {
-                return mb_substr($value, $start, $end);
+        try {
+            $value = self::get($key);
+            if ($value && is_string($value)) {
+                if ($end) {
+                    return mb_substr($value, $start, $end);
+                }
+                return mb_substr($value, $start);
             }
-            return mb_substr($value, $start);
+            return false;
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
         }
-        return false;
     }
 
     public static function replace(string $key, $value, $expire = 0)
     {
-        $value = self::$redis->getSet($key, $value);
-        $expire = (int)$expire ? $expire : self::$expire;
-        self::$redis->expire($key, $expire);
-        return is_numeric($value) ? $value : json_decode($value, true);
+        try {
+            $value = self::$redis->getSet($key, $value);
+            $expire = (int)$expire ? $expire : self::$expire;
+            self::$redis->expire($key, $expire);
+            return is_numeric($value) ? $value : json_decode($value, true, 512, JSON_THROW_ON_ERROR);
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
+        }
     }
 
     public static function mset(array $arr): bool
     {
-        if ($arr && is_array($arr)) {
-            foreach ($arr as &$value) {
-                $value = is_int($value) ? $value : json_encode($value, JSON_UNESCAPED_UNICODE);
-            }
-            if (self::$redis->mset($arr)) {
-                return true;
+        try {
+            if ($arr && is_array($arr)) {
+                foreach ($arr as &$value) {
+                    $value = is_int($value) ? $value : json_encode($value, JSON_UNESCAPED_UNICODE);
+                }
+                if (self::$redis->mset($arr)) {
+                    return true;
+                }
+                return false;
             }
             return false;
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
         }
-        return false;
     }
 
-    public static function mget()
+    public static function mGet()
     {
-        $keys = func_get_args();
-        if ($keys) {
-            $values = self::$redis->mget($keys);
-            if ($values) {
-                foreach ($values as &$value) {
-                    $value = is_numeric($value) ? $value : json_decode($value, true);
+        try {
+            $keys = func_get_args();
+            if ($keys) {
+                $values = self::$redis->mget($keys);
+                if ($values) {
+                    foreach ($values as &$value) {
+                        $value = is_numeric($value) ? $value : json_decode($value, true);
+                    }
+                    return $values;
                 }
-                return $values;
             }
+            return false;
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
         }
-        return false;
     }
 
     public static function expireTime(string $key)
     {
-        return self::$redis->ttl($key);
+        try {
+            return self::$redis->ttl($key);
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
+        }
     }
 
     public static function setnx($key, $value, $expire = 0)
     {
-        $value = is_int($value) ? $value : json_encode($value, JSON_UNESCAPED_UNICODE);
-        $res = self::$redis->setnx($key, $value);
-        if ($res) {
-            $expire = (int)$expire ? $expire : self::$expire;
-            self::$redis->expire($key, $expire);
+        try {
+            $value = is_int($value) ? $value : json_encode($value, JSON_UNESCAPED_UNICODE);
+            $res = self::$redis->setnx($key, $value);
+            if ($res) {
+                $expire = (int)$expire ? $expire : self::$expire;
+                self::$redis->expire($key, $expire);
+            }
+            return $res;
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
         }
-        return $res;
     }
 
-    public function valueLength(string $key): int
+    public static function valueLength(string $key): int
     {
-        $value = $this->get($key);
-        $length = 0;
-        if ($value) {
-            if (is_array($value)) {
-                $length = count($value);
-            } else {
-                $length = strlen($value);
+        try {
+            $value = self::get($key);
+            $length = 0;
+            if ($value) {
+                if (is_array($value)) {
+                    $length = count($value);
+                } else {
+                    $length = strlen($value);
+                }
             }
+            return $length;
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
         }
-        return $length;
     }
 
     public static function inc(string $key, $int = 0)
     {
-        if ((int)$int) {
-            return self::$redis->incrby($key, $int);
+        try {
+            if ((int)$int) {
+                return self::$redis->incrby($key, $int);
+            }
+            return self::$redis->incr($key);
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
         }
-
-        return self::$redis->incr($key);
     }
 
     public static function dec($key, $int = 0)
     {
-        if ((int)$int) {
-            return self::$redis->decrby($key, $int);
+        try {
+            if ((int)$int) {
+                return self::$redis->decrby($key, $int);
+            }
+            return self::$redis->decr($key);
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
         }
-
-        return self::$redis->decr($key);
     }
 
     public static function hSet(string $table, string $column, mixed $value, $expire = 0)
     {
-        $value = is_array($value) ? json_encode($value, JSON_UNESCAPED_UNICODE) : $value;
-        $res = self::$redis->hset($table, $column, $value);
-        if ((int)$expire) {
-            self::$redis->expire($table, $expire);
+        try {
+            $value = is_array($value) ? json_encode($value, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE) : $value;
+            $res = self::$redis->hset($table, $column, $value);
+            if ((int)$expire) {
+                self::$redis->expire($table, $expire);
+            }
+            return $res;
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
         }
-        return $res;
     }
 
     public static function hGet(string $table, string $column)
     {
-        return self::$redis->hget($table, $column);
+        try {
+            return self::$redis->hget($table, $column);
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
+        }
     }
 
     public static function hDel($table, $columns)
     {
-        $columns = func_get_args();
-        $table = $columns[0];
-        $count = count($columns);
-        $num = 0;
-        for ($i = 1; $i < $count; $i++) {
-            $num += self::$redis->hdel($table, $columns[$i]);
+        try {
+            $columns = func_get_args();
+            $table = $columns[0];
+            $count = count($columns);
+            $num = 0;
+            for ($i = 1; $i < $count; $i++) {
+                $num += self::$redis->hdel($table, $columns[$i]);
+            }
+            return $num;
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
         }
-        return $num;
     }
 
-    public function hExists($table, $column): bool
+    public static function hExists($table, $column): bool
     {
-        if ((int)self::$redis->hexists($table, $column)) {
-            return true;
+        try {
+            if ((int)self::$redis->hexists($table, $column)) {
+                return true;
+            }
+            return false;
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
         }
-        return false;
     }
 
-    public function hGetAll($table)
+    public static function hGetAll($table)
     {
-        return self::$redis->hgetall($table);
-    }
-
-    public function hinc($table, $column, $num = 1)
-    {
-        $value = self::hget($table, $column);
-        if (is_numeric($value)) { //数字类型，包括整数和浮点数
-            $value += $num;
-            self::hset($table, $column, $value);
-            return $value;
+        try {
+            return self::$redis->hgetall($table);
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
         }
-
-        return false;
     }
 
-    public function hKeys($table)
+    public static function hinc($table, $column, $num = 1)
     {
-        return self::$redis->hkeys($table);
+        try {
+            $value = self::hget($table, $column);
+            if (is_numeric($value)) { //数字类型，包括整数和浮点数
+                $value += $num;
+                self::hset($table, $column, $value);
+                return $value;
+            }
+            return false;
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
+        }
     }
 
-    public function hVals($table)
+    public static function hKeys($table)
     {
-        return self::$redis->hvals($table);
+        try {
+            return self::$redis->hkeys($table);
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
+        }
     }
 
-    public function hLen($table)
+    public static function hVals($table)
     {
-        return self::$redis->hlen($table);
+        try {
+            return self::$redis->hvals($table);
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
+        }
     }
 
-    public function hMGet($table, $columns): array
+    public static function hLen($table)
     {
-        $data = $this->hgetall($table);
+        try {
+            return self::$redis->hlen($table);
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
+        }
+    }
+
+    public static function hMGet($table, $columns): array
+    {
+        $data = self::hgetall($table);
         $result = [];
         if ($data) {
             $columns = func_get_args();
@@ -247,26 +339,54 @@ class RedisHandler
         return $result;
     }
 
-    public function hMSet($table, array $data, $expire = 0)
+    public static function hMSet($table, array $data, $expire = 0)
     {
-        $result = self::$redis->hmset($table, $data);
-        if ((int)$expire) {
-            $this->expire($table, $expire);
+        try {
+            $result = self::$redis->hmset($table, $data);
+            if ((int)$expire) {
+                self::expire($table, $expire);
+            }
+            return $result;
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
         }
-        return $result;
     }
 
-    public function hSetNX($table, $column, $value, $expire = 0): bool
+    public static function hSetNX($table, $column, $value, $expire = 0): bool
     {
-        if (is_array($value)) {
-            $value = json_encode($value);
+        try {
+            if (is_array($value)) {
+                $value = json_encode($value, JSON_THROW_ON_ERROR);
+            }
+            $result = self::$redis->hSetNx($table, $column, $value);
+            if ((int)$expire) {
+                self::expire($table, $expire);
+            }
+            return $result;
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
         }
-        $result = self::$redis->hSetNx($table, $column, $value);
-        if ((int)$expire) {
-            $this->expire($table, $expire);
-        }
-        return $result;
     }
 
-
+    public static function remember($key, Closure $callback, int $expire = 0, int $hash = 0)
+    {
+        try {
+            $value = self::get($key);
+            if (!is_bool($value)) {
+                return is_numeric($value) ? $value : json_decode($value, true, 512, JSON_THROW_ON_ERROR);
+            }
+            $value = $callback();
+            if ($value) {
+                $value = is_int($value) ? $value : json_encode($value, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
+                $time = random_int(100, 1000);
+                $expire = $expire ? $expire + $time : self::$expire + $time;
+            } else {
+                $expire = 120;
+            }
+            $hash ? self::set($key, $value, $expire) : self::hSet($key, $value, $expire);
+            return $callback();
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
+        }
+    }
 }
