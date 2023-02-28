@@ -9,23 +9,30 @@
 
 namespace Rickytech\Library\Services\Cache\Redis;
 
+use Hyperf\Redis\RedisFactory;
+use Hyperf\Utils\ApplicationContext;
+
 class RedisHandler
 {
-    private static $redis = null;
+    private static ?\Hyperf\Redis\RedisProxy $redis = null;
+    private static ?RedisHandler $instance = null;
     private static int $expire = 3600; //默认存储时间（秒）
 
-    public function __construct()
+    private function __construct()
     {
-        self::$redis = new \Predis\Client([
-            'scheme'   => 'tcp',
-            'host'     => env("REDIS_HOST"),
-            'port'     => env("REDIS_PORT"),
-            'database' => (int)env("REDIS_DB"),
-            'password' => env('REDIS_AUTH'),
-        ]);
+        self::$redis = ApplicationContext::getContainer()->get(RedisFactory::class)->get('default');
+        self::$redis->select((int)env('REDIS_HOST'));
     }
 
-    public static function set(mixed $key, $value, int $expire = 3600): bool
+    public static function getInstance()
+    {
+        if (is_null(self::$instance) || !self::$instance) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    public function set(mixed $key, $value, int $expire = 3600): bool
     {
         if (!$value) {
             $expire = 120;
@@ -39,7 +46,7 @@ class RedisHandler
         return self::$redis->set($key, $value) && self::$redis->expire($key, $expire);
     }
 
-    public static function expire(string $key, $expire = 0): bool
+    public function expire(string $key, $expire = 0): bool
     {
         $expire = (int)$expire ? $expire : self::$expire;
         if (self::$redis->expire($key, $expire)) {
@@ -48,7 +55,7 @@ class RedisHandler
         return false;
     }
 
-    public static function get(string $key)
+    public function get(string $key)
     {
         $value = self::$redis->get($key);
         if (is_object($value)) {
@@ -62,9 +69,9 @@ class RedisHandler
         return self::$redis->del($key);
     }
 
-    public static function substr(string $key, $start, $end = 0)
+    public function substr(string $key, $start, $end = 0)
     {
-        $value = self::get($key);
+        $value = $this->get($key);
         if ($value && is_string($value)) {
             if ($end) {
                 return mb_substr($value, $start, $end);
@@ -96,7 +103,7 @@ class RedisHandler
         return false;
     }
 
-    public static function mget(): bool
+    public static function mget()
     {
         $keys = func_get_args();
         if ($keys) {
@@ -127,9 +134,9 @@ class RedisHandler
         return $res;
     }
 
-    public static function valueLength(string $key): int
+    public function valueLength(string $key): int
     {
-        $value = self::get($key);
+        $value = $this->get($key);
         $length = 0;
         if ($value) {
             if (is_array($value)) {
@@ -186,7 +193,7 @@ class RedisHandler
         return $num;
     }
 
-    public static function hExists($table, $column): bool
+    public function hExists($table, $column): bool
     {
         if ((int)self::$redis->hexists($table, $column)) {
             return true;
@@ -194,12 +201,12 @@ class RedisHandler
         return false;
     }
 
-    public static function hGetAll($table)
+    public function hGetAll($table)
     {
         return self::$redis->hgetall($table);
     }
 
-    public static function hinc($table, $column, $num = 1)
+    public function hinc($table, $column, $num = 1)
     {
         $value = self::hget($table, $column);
         if (is_numeric($value)) { //数字类型，包括整数和浮点数
@@ -211,24 +218,24 @@ class RedisHandler
         return false;
     }
 
-    public static function hKeys($table)
+    public function hKeys($table)
     {
         return self::$redis->hkeys($table);
     }
 
-    public static function hVals($table)
+    public function hVals($table)
     {
         return self::$redis->hvals($table);
     }
 
-    public static function hLen($table)
+    public function hLen($table)
     {
         return self::$redis->hlen($table);
     }
 
-    public static function hMGet($table, $columns): array
+    public function hMGet($table, $columns): array
     {
-        $data = self::hgetall($table);
+        $data = $this->hgetall($table);
         $result = [];
         if ($data) {
             $columns = func_get_args();
@@ -240,23 +247,23 @@ class RedisHandler
         return $result;
     }
 
-    public static function hMSet($table, array $data, $expire = 0)
+    public function hMSet($table, array $data, $expire = 0)
     {
         $result = self::$redis->hmset($table, $data);
         if ((int)$expire) {
-            self::expire($table, $expire);
+            $this->expire($table, $expire);
         }
         return $result;
     }
 
-    public static function hSetnx($table, $column, $value, $expire = 0)
+    public function hSetNX($table, $column, $value, $expire = 0): bool
     {
         if (is_array($value)) {
             $value = json_encode($value);
         }
-        $result = self::$redis->hsetnx($table, $column, $value);
+        $result = self::$redis->hSetNx($table, $column, $value);
         if ((int)$expire) {
-            self::expire($table, $expire);
+            $this->expire($table, $expire);
         }
         return $result;
     }
