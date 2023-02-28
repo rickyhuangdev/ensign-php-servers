@@ -7,8 +7,9 @@ namespace Rickytech\Library\Services\Cache\Redis;
 use Hyperf\Di\Annotation\AbstractAnnotation;
 use Hyperf\Di\Annotation\AnnotationCollector;
 use Hyperf\Utils\Str;
-use Rickytech\Library\Services\Cache\Redis\Attributes\Cacheable;
-use Rickytech\Library\Services\Cache\Redis\Attributes\CacheEvict;
+use App\Attributes\Cache\Cacheable;
+use App\Attributes\Cache\CacheEvict;
+use App\Attributes\Cache\CacheWithHashAspect;
 
 class CacheAnnotation
 {
@@ -42,7 +43,7 @@ class CacheAnnotation
         $collector = AnnotationCollector::get($className);
         $result = $collector['_m'][$method][$annotation] ?? null;
         if (!$result instanceof $annotation) {
-            throw new CacheException(sprintf('Annotation %s in %s:%s not exist.', $annotation, $className, $method));
+            throw new \RuntimeException(sprintf('Annotation %s in %s:%s not exist.', $annotation, $className, $method));
         }
 
         return $result;
