@@ -1,6 +1,6 @@
 <?php
 
-namespace Rickytech\Library\Attributes;
+namespace Rickytech\Library\Services\Cache\Redis\Attributes;
 
 use Attribute;
 use Hyperf\Di\Annotation\AbstractAnnotation;

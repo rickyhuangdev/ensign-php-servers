@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Rickytech\Library\Aspects;
+namespace Rickytech\Library\Services\Cache\Redis\Aspects;
 
-use App\Attributes\Cache\CacheWithHash;
-use App\Services\Cache\CacheAnnotation;
 use Hyperf\Di\Annotation\Aspect;
 use Hyperf\Di\Aop\AbstractAspect;
 use Hyperf\Di\Aop\ProceedingJoinPoint;
+use Rickytech\Library\Services\Cache\Redis\Attributes\CacheWithHash;
+use Rickytech\Library\Services\Cache\Redis\CacheAnnotation;
 use Rickytech\Library\Services\Cache\Redis\CacheManager;
 
 #[Aspect]
