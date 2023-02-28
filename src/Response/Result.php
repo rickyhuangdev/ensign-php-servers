@@ -47,14 +47,24 @@ class Result
                 'totalPage'    => $data->lastPage()
             ];
         } elseif ($data instanceof PageResult) {
-            $data = [
-                'columnFields' => $data->columnFields ?? [],
-                'items'        => $data->items,
-                'current'      => $data->page,
-                'pageSize'     => $data->pageSize,
-                'total'        => $data->counts,
-                'totalPage'    => $data->totalPages
-            ];
+            if (!$data->columnFields) {
+                $data = [
+                    'items'     => $data->items,
+                    'current'   => $data->page,
+                    'pageSize'  => $data->pageSize,
+                    'total'     => $data->counts,
+                    'totalPage' => $data->totalPages
+                ];
+            } else {
+                $data = [
+                    'columnFields' => $data->columnFields ?? [],
+                    'items'        => $data->items,
+                    'current'      => $data->page,
+                    'pageSize'     => $data->pageSize,
+                    'total'        => $data->counts,
+                    'totalPage'    => $data->totalPages
+                ];
+            }
         }
         return [
             'success' => true,
