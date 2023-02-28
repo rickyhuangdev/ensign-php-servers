@@ -77,7 +77,10 @@ class RedisHandler
     {
         try {
             $value = self::$redis->get($key);
-            return is_numeric($value) ? $value : json_decode($value, true, 512, JSON_THROW_ON_ERROR);
+            if ($value) {
+                return is_numeric($value) ? $value : json_decode($value, true, 512, JSON_THROW_ON_ERROR);
+            }
+            return $value;
         } catch (\Exception $e) {
             throw new \RuntimeException($e->getMessage());
         }
