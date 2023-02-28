@@ -2,109 +2,112 @@
 
 namespace Rickytech\Library\Services\Cache\Redis;
 
-use Closure;
-use Hyperf\Redis\RedisFactory;
-use Hyperf\Utils\ApplicationContext;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
-use ReflectionClass;
-use Rickytech\Library\Services\Cache\Redis\Attributes\Cacheable;
+use Hyperf\Cache\Helper\StringHelper;
+use Hyperf\Utils\Collection;
+use Hyperf\Utils\Str;
+use Illuminate\Support\Arr;
+use Rickytech\Library\DataTransferObject\DataTransferObject;
+
 
 class CacheManager
 {
-    private \Hyperf\Redis\RedisProxy $cache;
-
+    private ?RedisHandler $cache;
 
     public function __construct()
     {
-        try {
-            $this->cache = ApplicationContext::getContainer()->get(RedisFactory::class)->get('default');
-        } catch (NotFoundExceptionInterface|ContainerExceptionInterface $e) {
-            throw new \RuntimeException($e->getMessage());
-        }
+        $this->cache = RedisHandler::getInstance();
     }
 
-    /**
-     * @throws \RedisException
-     * @throws \JsonException
-     * @throws \Exception
-     */
-    public function remember($key, Closure $callback, int $ttl = 7200)
+    public function set($key, $result, $ttl = 0): void
     {
-        $value = $this->cache->get($key);
-        if (!is_bool($value)) {
-            return is_numeric($value) ? $value : json_decode($value, true, 512, JSON_THROW_ON_ERROR);
-        }
-        $value = $callback();
+        $this->cache::set($key, $result, $ttl);
+    }
+
+
+    public function get(string $key): array
+    {
+        $value = $this->cache::get($key);
         if ($value) {
-            $value = is_int($value) ? $value : json_encode($value, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK);
-            $ttl += random_int(100, 1000);
-        } else {
-            $ttl = 120;
-        }
-        $this->cache->set($key, $value, $ttl);
-        return $callback();
-    }
-
-    /**
-     * @throws \RedisException
-     * @throws \Exception
-     */
-    public function set($key, $result, $ttl = 7200)
-    {
-        if ($result) {
-            $ttl += random_int(100, 1000);
-            $result = is_int($result) ? $result : json_encode($result, JSON_THROW_ON_ERROR);
-        } elseif (is_null($result)) {
-            $ttl = 120;
-            $result = serialize($result);
-        }
-
-        $this->cache->set($key, $result, $ttl);
-    }
-
-
-    public function get(string $key)
-    {
-        $this->cache->select((int)env('REDIS_DB', 1));
-        $value = $this->cache->get($key);
-        if ($value) {
-            return [true, is_numeric($value) ? $value : json_decode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_NUMERIC_CHECK, 512, JSON_THROW_ON_ERROR)];
+            return [true, $value];
         }
         return [false, null];
     }
 
-    public function delete(string $key)
+    public function hashGet(string $key, string $field): array
     {
-        $this->cache->select((int)env('REDIS_DB', 1));
-        $this->cache->del($key);
+        $value = $this->cache::hGet($key, $field);
+        if ($value) {
+            return [true, $value];
+        }
+        return [false, null];
+    }
+
+
+    public function hashSet(string $key, string $field, mixed $value)
+    {
+        return $this->cache::hSet($key, $field, $value);
+    }
+
+
+    public function format(string $prefix, mixed $arguments, ?string $value = null): string
+    {
+        $arguments = array_shift($arguments);
+        if ($arguments instanceof DataTransferObject) {
+            $arguments = $arguments->toArray();
+        }
+        if ($value !== null) {
+            if ($matches = StringHelper::parse($value)) {
+                foreach ($matches as $search) {
+                    $k = str_replace(['#{', '}'], '', $search);
+                    $value = Str::replaceFirst($search, (string)$this->data_get($arguments, $k), $value);
+                }
+            }
+        } else {
+            $value = implode(':', $arguments);
+        }
+
+        return $prefix . ':' . $value;
     }
 
     /**
-     * @throws \ReflectionException
+     * Parse expression of value.
      */
-    public function getCacheAttributeValues(string $className, string $methodName): array
+    public function parse(string $value): array
     {
-        try {
-            $class = new ReflectionClass($className);
-            $attributes = $class->getMethod($methodName)->getAttributes(Cacheable::class);
-            $attributesArray = [];
-            foreach ($attributes as $attribute) {
-                try {
-                    $attributeClass = $attribute->newInstance();
-                } catch (\Exception $e) {
-                    continue;
-                }
-                if (!$attributeClass instanceof Cacheable) {
-                    continue;
-                }
-                $attributesArray['prefix'] = $attributeClass->prefix;
-                $attributesArray['value'] = $attributeClass->value;
-                $attributesArray['ttl'] = $attributeClass->ttl;
-            }
-            return array_values($attributesArray);
-        } catch (\ReflectionException $e) {
-            throw new \ReflectionException($e->getMessage());
-        }
+        preg_match_all('/\#\{[\w\.]+\}/', $value, $matches);
+
+        return $matches[0] ?? [];
     }
+
+    public function data_get($target, $key, $default = null)
+    {
+        if (is_null($key)) {
+            return $target;
+        }
+        $key = is_array($key) ? $key : explode('.', is_int($key) ? (string)$key : $key);
+        while (!is_null($segment = array_shift($key))) {
+            if ($segment === '*') {
+                if ($target instanceof Collection) {
+                    $target = $target->all();
+                } elseif (!is_array($target)) {
+                    return value($default);
+                }
+                $result = [];
+                foreach ($target as $item) {
+                    $result[] = data_get($item, $key);
+                }
+                return in_array('*', $key) ? Arr::collapse($result) : $result;
+            }
+            if (Arr::accessible($target) && Arr::exists($target, $segment)) {
+                $target = $target[$segment];
+            } elseif (is_object($target) && isset($target->{$segment})) {
+                $target = $target->{$segment};
+            } else {
+                return value($default);
+            }
+        }
+        return $target;
+    }
+
+
 }
