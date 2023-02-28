@@ -47,6 +47,11 @@ class CacheManager
         return $this->cache::hSet($key, $field, $value);
     }
 
+    public function deleteHashByField(string $key, string $field)
+    {
+        return $this->cache::hDel($key, $field);
+    }
+
     public function delete(string $key)
     {
         return $this->cache::del($key);
