@@ -47,6 +47,10 @@ class CacheManager
         return $this->cache::hSet($key, $field, $value);
     }
 
+    public function delete(string $key)
+    {
+        return $this->cache::del($key);
+    }
 
     public function format(string $prefix, mixed $arguments, ?string $value = null): string
     {
