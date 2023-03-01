@@ -12,8 +12,6 @@ namespace Rickytech\Library\Services\Cache\Redis;
 use Closure;
 use Hyperf\Redis\RedisFactory;
 use Hyperf\Utils\ApplicationContext;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 
 class RedisHandler
 {
@@ -24,10 +22,10 @@ class RedisHandler
     private function __construct()
     {
         try {
-            self::$redis = ApplicationContext::getContainer()->get(RedisFactory::class)->get('default');
-            self::$redis->select((int)env('REDIS_DB'));
-        } catch (NotFoundExceptionInterface|ContainerExceptionInterface|\RedisException $e) {
-            throw new \RuntimeException($e->getMessage());
+            $redis = ApplicationContext::getContainer()->get(RedisFactory::class)->get('default');
+            self::$redis = $redis;
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage(), 500);
         }
     }
 
@@ -54,6 +52,7 @@ class RedisHandler
                     $expire = (int)$expire ? $expire : self::$expire;
                 }
             }
+            self::$redis->select((int)env('REDIS_DB'));
             return self::$redis->set($key, $value) && self::$redis->expire($key, $expire);
         } catch (\Exception $e) {
             throw new \RuntimeException($e->getMessage());
@@ -63,6 +62,7 @@ class RedisHandler
     public static function expire(string $key, $expire = 0): bool
     {
         try {
+            self::$redis->select((int)env('REDIS_DB'));
             $expire = (int)$expire ? $expire : self::$expire;
             if (self::$redis->expire($key, $expire)) {
                 return true;
@@ -76,6 +76,7 @@ class RedisHandler
     public static function get(string $key)
     {
         try {
+            self::$redis->select((int)env('REDIS_DB'));
             $value = self::$redis->get($key);
             if ($value) {
                 return is_numeric($value) ? $value : json_decode($value, true, 512, JSON_THROW_ON_ERROR);
@@ -89,6 +90,7 @@ class RedisHandler
     public static function del(string $key)
     {
         try {
+            self::$redis->select((int)env('REDIS_DB'));
             return self::$redis->del($key);
         } catch (\Exception $e) {
             throw new \RuntimeException($e->getMessage());
@@ -98,6 +100,7 @@ class RedisHandler
     public static function substr(string $key, $start, $end = 0)
     {
         try {
+            self::$redis->select((int)env('REDIS_DB'));
             $value = self::get($key);
             if ($value && is_string($value)) {
                 if ($end) {
@@ -114,6 +117,7 @@ class RedisHandler
     public static function replace(string $key, $value, $expire = 0)
     {
         try {
+            self::$redis->select((int)env('REDIS_DB'));
             $value = self::$redis->getSet($key, $value);
             $expire = (int)$expire ? $expire : self::$expire;
             self::$redis->expire($key, $expire);
@@ -126,6 +130,7 @@ class RedisHandler
     public static function mset(array $arr): bool
     {
         try {
+            self::$redis->select((int)env('REDIS_DB'));
             if ($arr && is_array($arr)) {
                 foreach ($arr as &$value) {
                     $value = is_int($value) ? $value : json_encode($value, JSON_UNESCAPED_UNICODE);
@@ -144,6 +149,7 @@ class RedisHandler
     public static function mGet()
     {
         try {
+            self::$redis->select((int)env('REDIS_DB'));
             $keys = func_get_args();
             if ($keys) {
                 $values = self::$redis->mget($keys);
@@ -163,6 +169,7 @@ class RedisHandler
     public static function expireTime(string $key)
     {
         try {
+            self::$redis->select((int)env('REDIS_DB'));
             return self::$redis->ttl($key);
         } catch (\Exception $e) {
             throw new \RuntimeException($e->getMessage());
@@ -172,6 +179,7 @@ class RedisHandler
     public static function setnx($key, $value, $expire = 0)
     {
         try {
+            self::$redis->select((int)env('REDIS_DB'));
             $value = is_int($value) ? $value : json_encode($value, JSON_UNESCAPED_UNICODE);
             $res = self::$redis->setnx($key, $value);
             if ($res) {
@@ -187,6 +195,7 @@ class RedisHandler
     public static function valueLength(string $key): int
     {
         try {
+            self::$redis->select((int)env('REDIS_DB'));
             $value = self::get($key);
             $length = 0;
             if ($value) {
@@ -205,6 +214,7 @@ class RedisHandler
     public static function inc(string $key, $int = 0)
     {
         try {
+            self::$redis->select((int)env('REDIS_DB'));
             if ((int)$int) {
                 return self::$redis->incrby($key, $int);
             }
@@ -217,6 +227,7 @@ class RedisHandler
     public static function dec($key, $int = 0)
     {
         try {
+            self::$redis->select((int)env('REDIS_DB'));
             if ((int)$int) {
                 return self::$redis->decrby($key, $int);
             }
@@ -229,7 +240,8 @@ class RedisHandler
     public static function hSet(string $table, string $column, mixed $value, $expire = 0)
     {
         try {
-            $value = is_array($value) ? json_encode($value, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE) : $value;
+            self::$redis->select((int)env('REDIS_DB'));
+            $value = is_array($value) ? json_encode($value) : $value;
             $res = self::$redis->hset($table, $column, $value);
             if ((int)$expire) {
                 self::$redis->expire($table, $expire);
@@ -243,8 +255,8 @@ class RedisHandler
     public static function hGet(string $table, string $column)
     {
         try {
-            $value = self::$redis->hget($table, $column);
-            return is_array($value) ? json_decode((string)$value, true, 512, JSON_THROW_ON_ERROR) : $value;
+            self::$redis->select((int)env('REDIS_DB'));
+            return self::$redis->hget($table, $column);
         } catch (\Exception $e) {
             throw new \RuntimeException($e->getMessage());
         }
@@ -253,6 +265,7 @@ class RedisHandler
     public static function hDel($table, $columns)
     {
         try {
+            self::$redis->select((int)env('REDIS_DB'));
             $columns = func_get_args();
             $table = $columns[0];
             $count = count($columns);
@@ -269,6 +282,7 @@ class RedisHandler
     public static function hExists($table, $column): bool
     {
         try {
+            self::$redis->select((int)env('REDIS_DB'));
             if ((int)self::$redis->hexists($table, $column)) {
                 return true;
             }
@@ -281,6 +295,7 @@ class RedisHandler
     public static function hGetAll($table)
     {
         try {
+            self::$redis->select((int)env('REDIS_DB'));
             return self::$redis->hgetall($table);
         } catch (\Exception $e) {
             throw new \RuntimeException($e->getMessage());
@@ -290,6 +305,7 @@ class RedisHandler
     public static function hinc($table, $column, $num = 1)
     {
         try {
+            self::$redis->select((int)env('REDIS_DB'));
             $value = self::hget($table, $column);
             if (is_numeric($value)) { //数字类型，包括整数和浮点数
                 $value += $num;
@@ -305,6 +321,7 @@ class RedisHandler
     public static function hKeys($table)
     {
         try {
+            self::$redis->select((int)env('REDIS_DB'));
             return self::$redis->hkeys($table);
         } catch (\Exception $e) {
             throw new \RuntimeException($e->getMessage());
@@ -314,6 +331,7 @@ class RedisHandler
     public static function hVals($table)
     {
         try {
+            self::$redis->select((int)env('REDIS_DB'));
             return self::$redis->hvals($table);
         } catch (\Exception $e) {
             throw new \RuntimeException($e->getMessage());
@@ -323,6 +341,7 @@ class RedisHandler
     public static function hLen($table)
     {
         try {
+            self::$redis->select((int)env('REDIS_DB'));
             return self::$redis->hlen($table);
         } catch (\Exception $e) {
             throw new \RuntimeException($e->getMessage());
@@ -346,6 +365,7 @@ class RedisHandler
     public static function hMSet($table, array $data, $expire = 0)
     {
         try {
+            self::$redis->select((int)env('REDIS_DB'));
             $result = self::$redis->hmset($table, $data);
             if ((int)$expire) {
                 self::expire($table, $expire);
@@ -362,6 +382,7 @@ class RedisHandler
             if (is_array($value)) {
                 $value = json_encode($value, JSON_THROW_ON_ERROR);
             }
+            self::$redis->select((int)env('REDIS_DB'));
             $result = self::$redis->hSetNx($table, $column, $value);
             if ((int)$expire) {
                 self::expire($table, $expire);
@@ -375,6 +396,7 @@ class RedisHandler
     public static function remember($key, Closure $callback, int $expire = 0, int $hash = 0)
     {
         try {
+            self::$redis->select((int)env('REDIS_DB'));
             $value = self::get($key);
             if (!is_bool($value)) {
                 return is_numeric($value) ? $value : json_decode($value, true, 512, JSON_THROW_ON_ERROR);
