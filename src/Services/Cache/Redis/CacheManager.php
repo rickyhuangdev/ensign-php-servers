@@ -36,15 +36,15 @@ class CacheManager
     {
         $value = $this->cache::hGet($key, $field);
         if ($value) {
-            return [true, $value];
+            return [true, json_decode($value, true)];
         }
         return [false, null];
     }
 
 
-    public function hashSet(string $key, string $field, mixed $value)
+    public function hashSet(string $key, string $field, mixed $value, int $ttl)
     {
-        return $this->cache::hSet($key, $field, $value);
+        return $this->cache::hSet($key, $field, $value, $ttl);
     }
 
     public function deleteHashByField(string $key, string $field)
