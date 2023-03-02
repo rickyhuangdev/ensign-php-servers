@@ -414,7 +414,13 @@ class RedisHandler
             if ($value) {
                 $value = is_int($value) ? $value : json_encode($value, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
                 $time = random_int(100, 1000);
-                $expire = (($expire === -1) ? -1 : (($expire) ? self::$expire + $time : $expire + $time));
+                if ($expire === -1) {
+                    $expire = 0;
+                } elseif (!$expire) {
+                    $expire = self::$expire + $time;
+                } else {
+                    $expire += $time;
+                }
             } else {
                 $expire = 120;
             }
