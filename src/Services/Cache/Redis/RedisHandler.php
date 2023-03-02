@@ -393,11 +393,15 @@ class RedisHandler
         }
     }
 
-    public static function remember($key, Closure $callback, int $expire = 0, int $hash = 0)
+    public static function remember(string $key, Closure $callback, ?int $expire = 0, ?int $hash = 0, ?string $field='')
     {
         try {
             self::$redis->select((int)env('REDIS_DB'));
-            $value = self::get($key);
+            if ($hash && $field) {
+                $value = self::hGet($key, $field);
+            } else {
+                $value = self::get($key);
+            }
             if (!is_bool($value)) {
                 return is_numeric($value) ? $value : json_decode($value, true, 512, JSON_THROW_ON_ERROR);
             }
@@ -409,7 +413,7 @@ class RedisHandler
             } else {
                 $expire = 120;
             }
-            $hash ? self::set($key, $value, $expire) : self::hSet($key, $value, $expire);
+            $hash && $field ? self::hSet($key, $value, $expire) : self::set($key, $value, $expire);
             return $callback();
         } catch (\Exception $e) {
             throw new \RuntimeException($e->getMessage());
