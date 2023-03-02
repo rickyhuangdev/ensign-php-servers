@@ -393,8 +393,13 @@ class RedisHandler
         }
     }
 
-    public static function remember(string $key, Closure $callback, ?int $expire = 0, ?int $hash = 0, ?string $field='')
-    {
+    public static function remember(
+        string $key,
+        Closure $callback,
+        ?int $expire = 0,
+        ?int $hash = 0,
+        ?string $field = ''
+    ) {
         try {
             self::$redis->select((int)env('REDIS_DB'));
             if ($hash && $field) {
@@ -409,7 +414,7 @@ class RedisHandler
             if ($value) {
                 $value = is_int($value) ? $value : json_encode($value, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
                 $time = random_int(100, 1000);
-                $expire = $expire ? $expire + $time : self::$expire + $time;
+                $expire = (($expire === -1) ? -1 : (($expire) ? self::$expire + $time : $expire + $time));
             } else {
                 $expire = 120;
             }
