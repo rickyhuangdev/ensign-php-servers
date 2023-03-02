@@ -413,7 +413,7 @@ class RedisHandler
             } else {
                 $expire = 120;
             }
-            $hash && $field ? self::hSet($key, $value, $expire) : self::set($key, $value, $expire);
+            $hash && $field ? self::hSet($key, $field, $value, $expire) : self::set($key, $value, $expire);
             return $callback();
         } catch (\Exception $e) {
             throw new \RuntimeException($e->getMessage());
