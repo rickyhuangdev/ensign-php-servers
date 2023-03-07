@@ -11,9 +11,10 @@ use Rickytech\Library\DataTransferObject\Attributes\MapTo;
 use Rickytech\Library\DataTransferObject\Caster\DataTransferObjectCaster;
 use Rickytech\Library\DataTransferObject\Exceptions\UnknownProperties;
 use Rickytech\Library\DataTransferObject\Reflection\DataTransferObjectClass;
+use Rickytech\Library\Validator\BaseValidator;
 
 #[CastWith(DataTransferObjectCaster::class)]
-abstract class DataTransferObject
+abstract class DataTransferObject extends BaseValidator
 {
     protected array $exceptKeys = [];
 
