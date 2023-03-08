@@ -46,7 +46,7 @@ abstract class DataTransferObject extends BaseValidator
     public static function arrayOf(array $arrayOfParameters): array
     {
         return array_map(
-            static fn (mixed $parameters) => new static($parameters),
+            static fn(mixed $parameters) => new static($parameters),
             $arrayOfParameters
         );
     }
@@ -91,6 +91,9 @@ abstract class DataTransferObject extends BaseValidator
         return $dataTransferObject;
     }
 
+    /**
+     * @throws UnknownProperties
+     */
     public function clone(...$args): static
     {
         return new static(...array_merge($this->toArray(), $args));
@@ -104,9 +107,7 @@ abstract class DataTransferObject extends BaseValidator
             $array = Arr::except($this->all(), $this->exceptKeys);
         }
 
-        $array = $this->parseArray($array);
-
-        return $array;
+        return $this->parseArray($array);
     }
 
     protected function parseArray(array $array): array
@@ -128,15 +129,12 @@ abstract class DataTransferObject extends BaseValidator
         return $array;
     }
 
-    public static function fromArray(array $data): self
+    /**
+     * @throws UnknownProperties
+     */
+    public static function fromArray(array $data): static
     {
-        $dto = new static();
-        foreach ($data as $key => $value) {
-            if (property_exists($dto, $key)) {
-                $dto->$key = $value;
-            }
-        }
-        return $dto;
+        return new static($data);
     }
 
     public function validate(): void
