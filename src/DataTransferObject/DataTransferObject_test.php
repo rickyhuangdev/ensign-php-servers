@@ -14,7 +14,7 @@ use Rickytech\Library\DataTransferObject\Reflection\DataTransferObjectClass;
 use Rickytech\Library\Validator\BaseValidator;
 
 #[CastWith(DataTransferObjectCaster::class)]
-abstract class DataTransferObject extends BaseValidator
+abstract class DataTransferObject_test extends BaseValidator
 {
     protected array $exceptKeys = [];
 
