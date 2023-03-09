@@ -9,71 +9,107 @@
 
 namespace Rickytech\Library\DataTransferObject;
 
-use Hyperf\Utils\Arr;
+use Hyperf\Context\Context;
 use Hyperf\Validation\Contract\ValidatorFactoryInterface;
 use Hyperf\Validation\ValidationException;
 
 class BaseDTO
 {
     /**
-     * @var array
-     */
-    protected $data;
-
-    /**
-     * @var array
-     */
-    protected $rules = [];
-
-    /**
-     * @var array
-     */
-    protected $messages = [];
-
-    /**
-     * @var array
-     */
-    protected $customAttributes = [];
-
-    /**
      * @var ValidatorFactoryInterface
      */
-    protected $validatorFactory;
+    protected static $validatorFactory;
 
-    public function __construct(array $data, ValidatorFactoryInterface $validatorFactory)
+    /**
+     * @var array
+     */
+    protected $data = [];
+
+    /**
+     * @var array
+     */
+    protected static $rules = [];
+
+    /**
+     * @var array
+     */
+    protected static $messages = [];
+
+    /**
+     * @var array
+     */
+    protected static $attributes = [];
+
+    /**
+     * @var array
+     */
+    protected static $defaults = [];
+
+    public function __construct(array $data = [])
     {
         $this->data = $data;
-        $this->validatorFactory = $validatorFactory;
     }
 
     /**
-     * Validate the data and return the DTO object.
-     *
-     * @throws ValidationException
+     * Set the validator factory instance.
      */
-    public static function make(array $data): static
+    public static function setValidatorFactory(ValidatorFactoryInterface $validatorFactory): void
     {
-        $instance = new static($data, make(ValidatorFactoryInterface::class));
-        $instance->validate();
-        foreach ($data as $key => $value) {
-            $instance->$key = $value;
-        }
-        $instance->transform();
-        return $instance;
+        static::$validatorFactory = $validatorFactory;
     }
 
     /**
-     * Validate the data.
+     * Get the validator factory instance.
+     */
+    public static function getValidatorFactory(): ValidatorFactoryInterface
+    {
+        return make(ValidatorFactoryInterface::class);
+    }
+
+    /**
+     * Get the validation rules for the DTO.
+     */
+    public static function rules(): array
+    {
+        return static::$rules;
+    }
+
+    /**
+     * Get the validation messages for the DTO.
+     */
+    public static function messages(): array
+    {
+        return static::$messages;
+    }
+
+    /**
+     * Get the validation attributes for the DTO.
+     */
+    public static function attributes(): array
+    {
+        return static::$attributes;
+    }
+
+    /**
+     * Get the default values for the DTO.
+     */
+    public static function defaults(): array
+    {
+        return static::$defaults;
+    }
+
+    /**
+     * Validate the DTO data.
      *
      * @throws ValidationException
      */
-    protected function validate(): void
+    public function validate(): void
     {
-        $validator = $this->validatorFactory->make(
+        $validator = static::getValidatorFactory()->make(
             $this->data,
-            $this->rules,
-            $this->messages,
-            $this->customAttributes
+            static::rules(),
+            static::messages(),
+            static::attributes()
         );
 
         if ($validator->fails()) {
@@ -82,18 +118,66 @@ class BaseDTO
     }
 
     /**
-     * Transform the data.
+     * Create a new DTO instance from the given data.
      */
-    protected function transform(): void
+    public static function create(array $data = []): static
     {
-        $this->data = Arr::only($this->data, array_keys($this->rules));
+        $defaults = static::defaults();
+
+        $data = array_merge($defaults, $data);
+        $instance = new static($data);
+        $instance->validate();
+        foreach ($data as $key => $value) {
+            $instance->$key = $value;
+        }
+        return $instance;
     }
 
     /**
-     * Convert the DTO object to an array.
+     * Get the data for the DTO.
      */
     public function toArray(): array
     {
         return $this->data;
+    }
+
+    /**
+     * Get a value from the DTO data.
+     */
+    public function get(string $key, $default = null)
+    {
+        return $this->data[$key] ?? $default;
+    }
+
+    /**
+     * Set a value in the DTO data.
+     */
+    public function set(string $key, $value): void
+    {
+        $this->data[$key] = $value;
+    }
+
+    /**
+     * Determine if the DTO data has a value for the given key.
+     */
+    public function has(string $key): bool
+    {
+        return isset($this->data[$key]);
+    }
+
+    /**
+     * Get the current DTO instance from the context.
+     */
+    public static function current(): ?self
+    {
+        return Context::get(static::class);
+    }
+
+    /**
+     * Set the current DTO instance in the context.
+     */
+    public function setCurrent(): void
+    {
+        Context::set(static::class, $this);
     }
 }
