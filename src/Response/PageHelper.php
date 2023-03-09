@@ -21,7 +21,7 @@ class PageHelper
         $this->paginator = new Paginator($data->items(), $data->perPage(), $data->currentPage());
     }
 
-    public function getResult($resources, array $options): array
+    public function getResult($resources, array $options = []): array
     {
         $data = [
             'item' => $resources->toArray(),
@@ -30,7 +30,7 @@ class PageHelper
             'total' => $this->paginator->count(),
         ];
         if (!empty($options)) {
-            return [...$data, $options];
+            return [...$data, ...$options];
         }
         return $data;
     }
