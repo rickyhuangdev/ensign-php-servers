@@ -46,7 +46,7 @@ abstract class DataTransferObject extends BaseValidator
     public static function arrayOf(array $arrayOfParameters): array
     {
         return array_map(
-            static fn(mixed $parameters) => new static($parameters),
+            static fn (mixed $parameters) => new static($parameters),
             $arrayOfParameters
         );
     }
@@ -127,21 +127,5 @@ abstract class DataTransferObject extends BaseValidator
         }
 
         return $array;
-    }
-
-    /**
-     * @throws UnknownProperties
-     */
-    public static function fromArray(array $data): static
-    {
-        return new static($data);
-    }
-
-    public function validate(): void
-    {
-        $validator = $this->validationFactory->make($this->toArray(), $this->rules());
-        if ($validator->fails()) {
-            throw  new \RuntimeException($validator->errors()->first(), 422);
-        }
     }
 }
