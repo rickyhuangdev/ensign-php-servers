@@ -21,10 +21,10 @@ class PageHelper
         $this->paginator = new Paginator($data->items(), $data->perPage(), $data->currentPage());
     }
 
-    public function getResult($resources, array $options = []): array
+    public function getResult(?\Hyperf\Utils\Collection $resources, array $options = []): array
     {
         $data = [
-            'item' => $resources->toArray(),
+            'item' => $resources?->toArray() ?? $this->paginator->items(),
             'pageSize' => $this->paginator->perPage(),
             'current' => $this->paginator->currentPage(),
             'total' => $this->paginator->count(),
