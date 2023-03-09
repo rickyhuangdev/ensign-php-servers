@@ -21,7 +21,7 @@ class PageHelper
         $this->paginator = new Paginator($data->items(), $data->perPage(), $data->currentPage());
     }
 
-    public function getResult(?\Hyperf\Utils\Collection $resources, array $options = []): array
+    public function getResult(?\Hyperf\Utils\Collection $resources = null, array $options = []): array
     {
         $data = [
             'item' => $resources?->toArray() ?? $this->paginator->items(),
