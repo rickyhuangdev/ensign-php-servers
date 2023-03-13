@@ -19,8 +19,6 @@ abstract class DataTransferObject
 
     protected array $onlyKeys = [];
 
-    abstract public function rules(): array;
-
     public function __construct(...$args)
     {
         if (is_array($args[0] ?? null)) {
