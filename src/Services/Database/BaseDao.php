@@ -115,11 +115,13 @@ abstract class BaseDao
      * @param int $perPage
      * @return array
      */
-    public function findByFilter(array $where, array $columns = ['*'], array $orders = [], int $current = 1, int $pageSize = 20, QueryFilter $filter = null): array
+    public function findByFilter(array $where, array $columns = ['*'], array $orders = [], int $current = 1, int $pageSize = 20, QueryFilter $filter = null, array $relation = []): array
     {
         $offset = ($current - 1) * $pageSize;
         $items = $this->getModel()->newQuery()->when($filter !== null, function ($query) use ($filter) {
             $query->filter($filter);
+        })->when($relation, function ($query) use ($relation) {
+            $query->with($relation);
         })->where($where)->select($columns)->when($orders, function ($query) use ($orders) {
             foreach ($orders as $order) {
                 $query->orderBy($order[0], $order[1] ?? 'asc');
