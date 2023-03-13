@@ -10,129 +10,139 @@ declare(strict_types=1);
 
 namespace Rickytech\Library\Services\Database;
 
-use Hyperf\Database\Model\Builder;
-use Hyperf\Database\Model\Collection;
-use Hyperf\Database\Model\Model;
+use Hyperf\Context\Context;
+use Hyperf\Database\Model\Relations\BelongsTo;
+use Hyperf\Database\Model\Relations\HasMany;
+use Hyperf\Database\Model\Relations\HasOne;
+use Hyperf\Database\Schema\Schema;
 use Hyperf\DbConnection\Db;
-use Hyperf\Utils\Arr;
-use Hyperf\Utils\Str;
+use Hyperf\DbConnection\Model\Model;
+use Hyperf\Utils\Collection;
 
 abstract class BaseDao
 {
     /**
-     * @var string 模型类名称
+     * 获取当前模型类名.
+     *
+     * @return string
      */
-    protected $model;
-    /**
-     * @var array 可批量赋值的字段
-     */
-    protected $fillable = [];
+    abstract protected function model(): string;
 
     /**
-     * BaseDao constructor.
-     */
-    public function __construct()
-    {
-        if (empty($this->model)) {
-            throw new \RuntimeException('Please specify the $model property in ' . static::class);
-        }
-    }
-
-    /**
-     * 获取模型实例
+     * 获取模型实例.
+     *
      * @return Model
      */
-    protected function model(): Model
+    protected function getModel(): Model
     {
-        return make($this->model);
+        return Context::getOrSet(__METHOD__, function () {
+            $model = $this->model();
+            return new $model;
+        });
     }
 
     /**
-     * 根据主键获取模型实例
-     * @param int $id 主键ID
-     * @return Model|mixed|null
+     * 根据ID获取模型实例.
+     *
+     * @param $id
+     * @return Model|null
      */
-    public function find(int $id)
+    public function findById($id): ?Model
     {
-        return $this->model()->find($id);
+        return $this->getModel()->newQuery()->find($id);
     }
 
     /**
-     * 根据条件获取模型实例
-     * @param array $where 查询条件
-     * @return Model|mixed|null
+     * 根据条件获取单个模型实例.
+     *
+     * @param array $where
+     * @param array $columns
+     * @return Model|null
      */
-    public function findWhere(array $where)
+    public function findOneBy(array $where, array $columns = ['*']): ?Model
     {
-        return $this->model()->where($where)->first();
+        return $this->getModel()->newQuery()->where($where)->first($columns);
     }
 
     /**
-     * 根据条件获取多个模型实例
-     * @param array $where 查询条件
-     * @param array $orderBy 排序条件
-     * @param array $columns 查询字段
+     * 根据条件获取多个模型实例.
+     *
+     * @param array $where
+     * @param array $columns
+     * @param array $orders
+     * @param int $offset
+     * @param int $limit
      * @return Collection
      */
-    public function findAll(array $where = [], array $orderBy = [], array $columns = ['*']): Collection
+    public function findBy(array $where, array $columns = ['*'], array $orders = [], int $offset = 0, int $limit = 0): Collection
     {
-        $query = $this->newQuery();
-        $query = $this->applyConditions($query, $where);
-        $query = $this->applyOrderBy($query, $orderBy);
-        return $query->get($columns);
+        $query = $this->getModel()->newQuery()->where($where)->select($columns);
+        foreach ($orders as $order) {
+            $query->orderBy($order[0], $order[1] ?? 'asc');
+        }
+        if ($limit > 0) {
+            $query->offset($offset)->limit($limit);
+        }
+        return $query->get();
     }
 
     /**
-     * 根据条件获取多个模型实例并进行分页
-     * @param array $where 查询条件
-     * @param array $orderBy 排序条件
-     * @param int $perPage 每页数量
-     * @param array $columns 查询字段
-     * @param string $pageName 页码参数名称
-     * @param int|null $page 当前页码
+     * 根据条件获取分页数据.
+     *
+     * @param array $where
+     * @param array $columns
+     * @param array $orders
+     * @param int $page
+     * @param int $perPage
      * @return array
      */
-    public function paginate(array $where = [], array $orderBy = [], int $perPage = 15, array $columns = ['*'], string $pageName = 'page', int $page = null): array
+    public function findByPage(array $where, array $columns = ['*'], array $orders = [], int $current = 1, int $pageSize = 20): array
     {
-        $query = $this->newQuery();
-        $query = $this->applyConditions($query, $where);
-        $query = $this->applyOrderBy($query, $orderBy);
-        return $query->paginate($perPage, $columns, $pageName, $page)->toArray();
+        $total = $this->getModel()->newQuery()->where($where)->count();
+        $offset = ($current - 1) * $pageSize;
+        $items = $this->findBy($where, $columns, $orders, $offset, $pageSize);
+        return compact('total', 'items', 'pageSize', 'current');
     }
 
     /**
-     * 创建模型实例
-     * @param array $attributes 属性
-     * @return Model|mixed
-     * @throws \Throwable
+     * 创建模型实例.
+     *
+     * @param array $attributes
+     * @return \Hyperf\Database\Model\Builder|\Hyperf\Database\Model\Model
      */
-    public function create(array $attributes)
+    public function create(array $attributes): \Hyperf\Database\Model\Builder|\Hyperf\Database\Model\Model
     {
-        $data = Arr::only($attributes, $this->fillable);
-        $model = $this->model()->newInstance($data);
-        $model->saveOrFail();
-        return $model;
+        return $this->getModel()->newQuery()->create($attributes);
     }
 
     /**
-     * 更新模型实例
-     * @param Model $model 模型实例
-     * @param array $attributes 属性
+     * 批量创建模型实例.
+     *
+     * @param array $data
      * @return bool
-     * @throws \Throwable
+     */
+    public function createBatch(array $data): bool
+    {
+        return Db::table($this->getModel()->getTable())->insert($data);
+    }
+
+    /**
+     * 更新模型实例.
+     *
+     * @param Model $model
+     * @param array $attributes
+     * @return bool
      */
     public function update(Model $model, array $attributes): bool
     {
-        $data = Arr::only($attributes, $this->fillable);
-        $model->fill($data);
-        return $model->saveOrFail();
+        return $model->fill($attributes)->save();
     }
 
     /**
-     * 删除模型实例
-     * @param Model $model 模型实例
+     * 删除模型实例.
+     *
+     * @param Model $model
      * @return bool|null
-     * @throws \Exception
      */
     public function delete(Model $model): ?bool
     {
@@ -140,73 +150,79 @@ abstract class BaseDao
     }
 
     /**
-     * 新建查询构造器实例
-     * @return Builder
+     * 开始数据库事务.
+     *
+     * @return void
      */
-    protected function newQuery(): Builder
+    public function beginTransaction(): void
     {
-        return $this->model()->newQuery();
+        Db::beginTransaction();
     }
 
     /**
-     * 应用查询条件
-     * @param Builder $query 查询构造器
-     * @param array $where 查询条件
-     * @return Builder
+     * 提交数据库事务.
+     *
+     * @return void
      */
-    protected function applyConditions(Builder $query, array $where): Builder
+    public function commit(): void
     {
-        foreach ($where as $field => $value) {
-            if (Str::contains($field, '.')) {
-                [$relation, $field] = explode('.', $field);
-                $query->whereHas($relation, function (Builder $query) use ($field, $value) {
-                    $query->where($field, $value);
-                });
-            } else {
-                $query->where($field, $value);
-            }
-        }
-        return $query;
+        Db::commit();
     }
 
     /**
-     * 应用排序条件
-     * @param Builder $query 查询构造器
-     * @param array $orderBy 排序条件
-     * @return Builder
+     * 回滚数据库事务.
+     *
+     * @return void
      */
-    protected function applyOrderBy(Builder $query, array $orderBy): Builder
+    public function rollBack(): void
     {
-        foreach ($orderBy as $field => $direction) {
-            $query->orderBy($field, $direction);
-        }
-        return $query;
+        Db::rollBack();
     }
 
     /**
-     * 开启事务
-     * @return bool
+     * 创建一对多关联.
+     *
+     * @param string $relatedModel
+     * @param string $foreignKey
+     * @param string $localKey
+     * @return HasMany
      */
-    public function beginTransaction(): bool
+    protected function hasMany(string $relatedModel, string $foreignKey, string $localKey = 'id'): HasMany
     {
-        return Db::beginTransaction();
+        return $this->getModel()->hasMany($relatedModel, $foreignKey, $localKey);
     }
 
     /**
-     * 提交事务
-     * @return bool
+     * 创建一对一关联.
+     *
+     * @param string $relatedModel
+     * @param string $foreignKey
+     * @param string $localKey
+     * @return HasOne
      */
-    public function commit(): bool
+    protected function hasOne(string $relatedModel, string $foreignKey, string $localKey = 'id'): HasOne
     {
-        return Db::commit();
+        return $this->getModel()->hasOne($relatedModel, $foreignKey, $localKey);
     }
 
     /**
-     * 回滚事务
-     * @return bool
+     * 创建属于关联.
+     *
+     * @param string $relatedModel
+     * @param string $foreignKey
+     * @param string $ownerKey
+     * @return BelongsTo
      */
-    public function rollBack(): bool
+    protected function belongsTo(string $relatedModel, string $foreignKey, string $ownerKey = 'id'): BelongsTo
     {
-        return Db::rollBack();
+        return $this->getModel()->belongsTo($relatedModel, $foreignKey, $ownerKey);
+    }
+
+    /**
+     * @return array
+     */
+    protected function getColumns(): array
+    {
+        return Schema::getColumnListing($this->getModel()->getTable());
     }
 }
