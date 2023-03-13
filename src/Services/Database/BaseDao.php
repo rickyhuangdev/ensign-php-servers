@@ -123,7 +123,7 @@ abstract class BaseDao
             foreach ($orders as $order) {
                 $query->orderBy($order[0], $order[1] ?? 'asc');
             }
-        })->get();
+        })->offset($current)->limit($pageSize)->get();
         $total = $items->count();
         return compact('total', 'items', 'pageSize', 'current');
     }
