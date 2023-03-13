@@ -11,13 +11,12 @@ namespace Rickytech\Library\Services\Validator;
 
 use Hyperf\Validation\ValidationException;
 use Hyperf\Validation\ValidatorFactory;
-use Rickytech\Library\DataTransferObject\DataTransferObject;
 
 abstract class BaseValidator
 {
     protected static $dtoClass;
 
-    public static function validate(array $data): DataTransferObject
+    public static function validate(array $data)
     {
         $validator = self::getValidatorFactory()->make(
             $data,
