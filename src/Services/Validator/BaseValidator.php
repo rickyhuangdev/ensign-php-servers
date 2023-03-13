@@ -9,8 +9,8 @@
 
 namespace Rickytech\Library\Services\Validator;
 
+use Hyperf\Validation\Contract\ValidatorFactoryInterface;
 use Hyperf\Validation\ValidationException;
-use Hyperf\Validation\ValidatorFactory;
 
 abstract class BaseValidator
 {
@@ -33,9 +33,9 @@ abstract class BaseValidator
         return new $dtoClass($validator->validated());
     }
 
-    protected static function getValidatorFactory(): ValidatorFactory
+    protected static function getValidatorFactory(): ValidatorFactoryInterface
     {
-        return make(ValidatorFactory::class);
+        return make(ValidatorFactoryInterface::class);
     }
 
     abstract protected static function rules(): array;
