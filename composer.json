@@ -42,7 +42,8 @@
         "larapack/dd": "^1.1",
         "symfony/uid": "^6.2",
         "mongodb/mongodb": "^1.15",
-        "predis/predis": "^2.1"
+        "predis/predis": "^2.1",
+        "hyperf/validation": "^3.0"
     },
     "require-dev": {
         "roave/security-advisories": "dev-latest",
