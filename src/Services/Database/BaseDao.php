@@ -18,6 +18,7 @@ use Hyperf\Database\Schema\Schema;
 use Hyperf\DbConnection\Db;
 use Hyperf\DbConnection\Model\Model;
 use Hyperf\Utils\Collection;
+use Rickytech\Library\Filter\QueryFilter;
 
 abstract class BaseDao
 {
@@ -103,6 +104,26 @@ abstract class BaseDao
         $items = $this->findBy($where, $columns, $orders, $offset, $pageSize);
         return compact('total', 'items', 'pageSize', 'current');
     }
+
+    /**
+     * 根据条件获取分页数据.
+     *
+     * @param array $where
+     * @param array $columns
+     * @param array $orders
+     * @param int $page
+     * @param int $perPage
+     * @return array
+     */
+    public function findByFilter(array $where, array $columns = ['*'], array $orders = [], int $current = 1, int $pageSize = 20, QueryFilter $filter = null): array
+    {
+        $items = $this->getModel()->newQuery()->when($filter!==null, function ($query) use ($filter) {
+            $query->filter($filter);
+        })->where($where)->get();
+        $total = $items->count();
+        return compact('total', 'items', 'pageSize', 'current');
+    }
+
 
     /**
      * 创建模型实例.
