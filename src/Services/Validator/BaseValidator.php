@@ -20,7 +20,7 @@ abstract class BaseValidator
     {
         $validator = self::getValidatorFactory()->make(
             $data,
-            self::rules(),
+            static::rules(),
             static::messages(),
             static::customAttributes()
         );
