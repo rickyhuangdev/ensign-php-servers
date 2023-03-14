@@ -246,6 +246,9 @@ class RedisHandler
             if ((int)$expire) {
                 self::$redis->expire($table, $expire);
             }
+            if (is_null($value)) {
+                self::$redis->expire($table, 120);
+            }
             return $res;
         } catch (\Exception $e) {
             throw new \RuntimeException($e->getMessage());
