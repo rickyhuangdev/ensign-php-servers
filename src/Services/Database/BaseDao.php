@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace Rickytech\Library\Services\Database;
 
-use Hyperf\Context\Context;
 use Hyperf\Database\Model\Relations\BelongsTo;
 use Hyperf\Database\Model\Relations\HasMany;
 use Hyperf\Database\Model\Relations\HasOne;
@@ -36,10 +35,7 @@ abstract class BaseDao
      */
     protected function getModel(): Model
     {
-        return Context::getOrSet(__METHOD__, function () {
-            $model = $this->model();
-            return new $model;
-        });
+        return make($this->model(), ['enableCache' => true]);
     }
 
     /**
