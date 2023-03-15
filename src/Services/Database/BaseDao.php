@@ -56,9 +56,11 @@ abstract class BaseDao
      * @param array $columns
      * @return Model|null
      */
-    public function findOneBy(array $where, array $columns = ['*']): ?Model
+    public function findOneBy(array $where, array $columns = ['*'], array $relation = []): ?Model
     {
-        return $this->getModel()->newQuery()->where($where)->first($columns);
+        return $this->getModel()->newQuery()->when($relation, function ($query) use ($relation) {
+            $query->with($relation);
+        })->where($where)->first($columns);
     }
 
     /**
