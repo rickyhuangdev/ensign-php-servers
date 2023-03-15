@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Rickytech\Library\Exceptions;
 
-use Hyperf\Contract\ConfigInterface;
-use Hyperf\Database\Exception\QueryException;
+use Hyperf\Contract\StdoutLoggerInterface;
 use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\HttpMessage\Stream\SwooleStream;
-use Hyperf\Utils\ApplicationContext;
+use Hyperf\Validation\ValidationException;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
 
@@ -18,26 +17,20 @@ class JsonResponseException extends ExceptionHandler
     {
         $responseContents = $response->getBody()->getContents();
         $responseContents = json_decode($responseContents, true);
-        var_dump($responseContents);
+        $container = \Hyperf\Utils\ApplicationContext::getContainer();
+        $logger = $container->get(StdoutLoggerInterface::class);
+        $logger->warning(sprintf('message:[%s]', $throwable->getMessage()));
+        $logger->warning(sprintf('code:[%s]', $throwable->getCode()));
+        $logger->warning(sprintf('file:[%s]', $throwable->getFile()));
+        $logger->warning(sprintf('line:[%s]', $throwable->getLine()));
+        if ($throwable instanceof ValidationException) {
+            $responseContents['error']['message'] = $throwable->validator->errors()->first();
+            $responseContents['error']['code'] = 422;
+        }
         if (!empty($responseContents['error'])) {
-            $port = null;
-            $config = ApplicationContext::getContainer()->get(ConfigInterface::class);
-            $servers = $config->get('server.servers');
-            foreach ($servers as $k => $server) {
-                if ($server['name'] === 'jsonrpc-http') {
-                    $port = $server['port'];
-                    break;
-                }
-            }
-            if ($responseContents['error']['data']['code'] === 0) {
-                $responseContents['error']['code'] = 500;
-            } elseif ($responseContents['error']['data']['code'] > 0) {
+            if ($responseContents['error']['data']['code'] > 0) {
                 $responseContents['error']['code'] = $responseContents['error']['data']['code'];
             }
-            if ($throwable instanceof QueryException && env('APP_ENV') !== 'dev') {
-                $responseContents['error']['message'] = 'Server Error';
-            }
-            $responseContents['error']['code'] = 500;
         }
         $data = json_encode($responseContents, JSON_UNESCAPED_UNICODE);
         return $response->withAddedHeader(
@@ -60,11 +53,11 @@ class JsonResponseException extends ExceptionHandler
     {
         return [
             "jsonrpc" => "2.0",
-            "id"      => "1",
-            "error"   => [
-                "code"    => $code,
+            "id" => "1",
+            "error" => [
+                "code" => $code,
                 "message" => $message,
-                "data"    => null
+                "data" => null
             ]
         ];
     }
