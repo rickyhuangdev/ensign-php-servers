@@ -47,8 +47,9 @@ abstract class BaseServices
         }
     }
 
-    public function pageResult(array $items, int $total, int $current, int $pageSize): array
+    public function pageResult(array $items, int $current, int $pageSize): array
     {
+        $total = count($items);
         return compact('total', 'items', 'pageSize', 'current');
     }
 }
