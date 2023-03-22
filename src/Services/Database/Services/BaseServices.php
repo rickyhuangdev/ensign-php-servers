@@ -46,4 +46,9 @@ abstract class BaseServices
             throw new \RuntimeException($validator->errors()->first(), 422);
         }
     }
+
+    public function pageResult(array $items, int $total, int $current, int $pageSize): array
+    {
+        return compact('total', 'items', 'pageSize', 'current');
+    }
 }
