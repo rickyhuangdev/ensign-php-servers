@@ -43,7 +43,8 @@
         "symfony/uid": "^6.2",
         "mongodb/mongodb": "^1.15",
         "predis/predis": "^2.1",
-        "hyperf/validation": "^3.0"
+        "hyperf/validation": "^3.0",
+        "hyperf/di": "^3.0"
     },
     "require-dev": {
         "roave/security-advisories": "dev-latest",
