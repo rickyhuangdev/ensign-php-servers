@@ -396,23 +396,23 @@ class RedisHandler
         }
     }
 
-    public function remember(string $key, callable $callback, int $expire = 3600, int $nullExpire = 300)
+    public  static function remember(string $key, callable $callback, int $expire = 3600, int $nullExpire = 300)
     {
         // 检查 key 是否存在于 Redis 中
-        if ($this->redis->exists($key)) {
+        if (self::$redis->exists($key)) {
             // 如果 key 存在，直接从 Redis 获取数据并返回
-            return $this->redis->get($key);
+            return self::$redis->get($key);
         } else {
             $data = $callback();
             if ($data === null) {
                 $expire = $nullExpire;
             } else {
                 // 将数据存储到 Redis 中
-                $this->redis->set($key, $data);
+                self::$redis->set($key, $data);
             }
 
             // 设置过期时间
-            $this->redis->expire($key, $expire);
+            self::$redis->expire($key, $expire);
 
             // 返回获取到的数据
             return $data;
@@ -422,9 +422,9 @@ class RedisHandler
     public function rememberHash(string $key, callable $callback, int $expire = 3600, int $nullExpire = 300)
     {
         // 检查 key 是否存在于 Redis 中
-        if ($this->redis->exists($key)) {
+        if (self::$redis->exists($key)) {
             // 如果 key 存在，直接从 Redis 获取数据并返回
-            return $this->redis->hGetAll($key);
+            return self::$redis->hGetAll($key);
         } else {
             // 如果 key 不存在，执行回调函数以获取数据
             $data = $callback();
@@ -435,11 +435,11 @@ class RedisHandler
                 $expire = $nullExpire;
             } else {
                 // 将数据存储到 Redis 的哈希表中
-                $this->redis->hMSet($key, $data);
+                self::$redis->hMSet($key, $data);
             }
 
             // 设置过期时间
-            $this->redis->expire($key, $expire);
+            self::$redis->expire($key, $expire);
 
             // 返回获取到的数据
             return $data;
